@@ -28,22 +28,26 @@ log.error('Something failed:', new Error('error message'));
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
 ## Methods
-#### `log.debug(message, [Error|Object])`
-#### `log.info(message, [Error|Object])`
-#### `log.warn(message, [Error|Object])`
-#### `log.error(message, [Error|Object])`
-Prints the message prepended by log level. If the terminal supports colors, the level will be one of: blue, green, yellow, red. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted.
+###### `log.debug(message, [Error|Object])`
+###### `log.info(message, [Error|Object])`
+###### `log.warn(message, [Error|Object])`
+###### `log.error(message, [Error|Object])`
+Prints the message prepended by log level. If the terminal supports colors, the level will be one of: blue, green, yellow, red. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted. Example:
+```
+  myapp:debug DEBUG  I'm a debug output +0ms
+  myapp       INFO   I'm an info output +1ms
+```
 
 ## Properties
-#### `log.logger`
+###### `log.logger`
 Returns the default debug instance.
 
-#### `log.debugLogger`
+###### `log.debugLogger`
 Returns the debug debug instance which was instanciated with "*provided_namespace*:debug".
 
-#### `log.isEnabled`
+###### `log.isEnabled`
 Boolean indicating if default logger is enabled.
 
-#### `log.isDebugEnabled`
+###### `log.isDebugEnabled`
 Boolean indicating if debug logger is enabled.
 
