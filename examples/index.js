@@ -18,7 +18,7 @@ err.stack = 'the stack\nline2\nline3';
 log.error('Something failed:', err);
 
 
-log.logger('the default instance of debug, "using myapp"" namespace');
+log.logger('the default instance of debug, "using myapp" namespace');
 log.debugLogger('the debug instance of debug, using "myapp:debug" namespace');
 
 

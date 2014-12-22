@@ -4,6 +4,7 @@ var util = require('util');
 var vmDebug = require('debug');
 exports = module.exports = debugLogger;
 
+var DEBUG_NAMESPACE = ':debug';
 var RED     = '\x1b[31m';
 var GREEN   = '\x1b[32m';
 var YELLOW  = '\x1b[33m';
@@ -43,35 +44,31 @@ function getErrorMessage(e) {
   if ( e instanceof Error) {
     errorStrings[0] = ' ' + e.toString();
     if (e.stack) {
-      errorStrings[1] = '\n  stack trace: ' + e.stack;
+      errorStrings[1] = 'Stack trace:\n' + e.stack;
     }
     return errorStrings;
   }
   if (e && typeof e.toString !== 'undefined') {
     errorStrings[0] = ' ' + e.toString();
   }
-  errorStrings[1] = '\n  object: ' + util.inspect(e);
+  errorStrings[1] = 'Inspected object:\n' + util.inspect(e);
   return errorStrings;
 };
 
-function getFormattedMessage(message, e) {
-  var errorStrings = getErrorMessage(e);
-  return message + errorStrings[0] + errorStrings[1];
+function getPadding(size){
+  return new Array(size).join(' ');
 }
 
 function debugLogger(namespace) {
   var log = vmDebug(namespace);
-  var debug = vmDebug(namespace + ':debug');
+  var debug = vmDebug(namespace + DEBUG_NAMESPACE);
+  var defaultPadding = '\n' + getPadding(namespace.length + DEBUG_NAMESPACE.length + 11);
 
   var logger = {
     logger : log,
     debugLogger : debug,
-    isEnabled : function() {
-      return log.enabled;
-    },
-    isDebugEnabled : function() {
-      return debug.enabled;
-    }
+    isEnabled : log.enabled,
+    isDebugEnabled : debug.enabled
   };
 
   var levels = exports.levels;
@@ -81,7 +78,9 @@ function debugLogger(namespace) {
     var reset = vmDebug.useColors ? RESET : '';
 
     logger[level] = function(message, e) {
-      levelLog(color + levels[level].prefix + reset + getFormattedMessage(message, e));
+      var errorStrings = getErrorMessage(e);
+      var padding = errorStrings[1] != '' ? defaultPadding : '';
+      levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
   });
 
