@@ -1,0 +1,23 @@
+{
+  "name": "debug-logger",
+  "version": "0.1.0",
+  "description": "A wrapper for visionmedia's debug logger",
+  "main": "debug-logger.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:appscot/debug-logger.git"
+  },
+  "keywords": [
+    "debug",
+    "logger",
+    "colors"
+  ],
+  "author": {
+    "name": "Dario Marcelino",
+    "email": "dario@appscot.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "debug": "~2.1.0"
+  }
+}
