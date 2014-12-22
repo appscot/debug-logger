@@ -2,7 +2,7 @@
 
 var util = require('util');
 var vmDebug = require('debug');
-exports = module.exports = logger;
+exports = module.exports = debugLogger;
 
 var RED     = '\x1b[31m';
 var GREEN   = '\x1b[32m';
@@ -59,11 +59,11 @@ function getFormattedMessage(message, e) {
   return message + errorStrings[0] + errorStrings[1];
 }
 
-function logger(namespace) {
+function debugLogger(namespace) {
   var log = vmDebug(namespace);
   var debug = vmDebug(namespace + ':debug');
 
-  var loggerObj = {
+  var logger = {
     logger : log,
     debugLogger : debug,
     isEnabled : function() {
@@ -80,10 +80,10 @@ function logger(namespace) {
     var color = vmDebug.useColors ? levels[level].color : '';
     var reset = vmDebug.useColors ? RESET : '';
 
-    loggerObj[level] = function(message, e) {
+    logger[level] = function(message, e) {
       levelLog(color + levels[level].prefix + reset + getFormattedMessage(message, e));
     };
   });
 
-  return loggerObj;
+  return logger;
 };
