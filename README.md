@@ -7,7 +7,7 @@ A thin wrapper for visionmedia's debug logger
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
 `debug-logger` is a convenicence wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` contains 2 instances of `debug`, one for general purpose logging and another using `namespace:debug` for debug logs.
 
-`debug-logger` is the logger [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
+AppsCot uses `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
 ## Instalation
 ```javascript
@@ -25,6 +25,8 @@ log.error("I'm an error output");
 
 log.error('Something failed:', new Error('error message'));
 ```
+![screenshot](https://raw.githubusercontent.com/wiki/appscot/debug-logger/ScreenShot.png)
+
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
 ## Methods
