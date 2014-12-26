@@ -25,3 +25,6 @@ log.debugLogger('the debug instance of debug, using "myapp:debug" namespace');
 debugLogger.levels.info.color = '\x1b[31m';
 var customColorLog = require('../debug-logger')('myapp');
 customColorLog.info("I'm a RED info output");
+
+debugLogger.inspectOptions = { colors: true };  // Check http://nodejs.org/api/util.html#util_util_inspect_object_options
+log.info('nice colored example:', { anumber: 1234, astring: 'str', adate: new Date(), aboolean: true });

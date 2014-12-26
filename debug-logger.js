@@ -4,6 +4,8 @@ var util = require('util');
 var vmDebug = require('debug');
 exports = module.exports = debugLogger;
 
+exports.inspectOptions = {};
+
 var DEBUG_NAMESPACE = ':debug';
 var RED     = '\x1b[31m';
 var GREEN   = '\x1b[32m';
@@ -51,18 +53,18 @@ function getErrorMessage(e) {
   if (e && typeof e.toString !== 'undefined') {
     errorStrings[0] = ' ' + e.toString();
   }
-  errorStrings[1] = 'Inspected object:\n' + util.inspect(e);
+  errorStrings[1] = 'Inspected object:\n' + util.inspect(e, exports.inspectOptions);
   return errorStrings;
 };
 
 function getPadding(size){
-  return new Array(size).join(' ');
+  return new Array(size+1).join(' ');
 }
 
 function debugLogger(namespace) {
   var log = vmDebug(namespace);
   var debug = vmDebug(namespace + DEBUG_NAMESPACE);
-  var defaultPadding = '\n' + getPadding(namespace.length + DEBUG_NAMESPACE.length + 11);
+  var defaultPadding = '\n' + getPadding(2);
 
   var logger = {
     logger : log,
