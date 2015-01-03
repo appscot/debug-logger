@@ -3,32 +3,44 @@
 var util = require('util');
 var vmDebug = require('debug');
 exports = module.exports = debugLogger;
+exports.getForeColor = getForeColor;
+exports.getBackColor = getBackColor;
 
 exports.inspectOptions = {};
 
+exports.colors = {
+  black:    0,
+  red:      1,
+  green:    2,
+  yellow:   3,
+  blue:     4,
+  magenta:  5,
+  cyan:     6,
+  white:    7
+};
+
+exports.colorReset = '\x1b[0m';
+
+
 var DEBUG_NAMESPACE = ':debug';
-var RED     = '\x1b[31m';
-var GREEN   = '\x1b[32m';
-var YELLOW  = '\x1b[33m';
-var BLUE    = '\x1b[34m';
-var RESET   = '\x1b[0m';
+
 
 exports.levels = {
   debug : {
-    color : BLUE,
+    color : getForeColor('blue'),
     prefix :       'DEBUG  ',
     debugLogger : true
   },
   info : {
-    color : GREEN,
+    color : getForeColor('green'),
     prefix : '      INFO   '
   },
   warn : {
-    color : YELLOW,
+    color : getForeColor('yellow'),
     prefix : '      WARN   '
   },
   error : {
-    color : RED,
+    color : getForeColor('red'),
     prefix : '      ERROR  '
   }
 };
@@ -61,6 +73,14 @@ function getPadding(size){
   return new Array(size+1).join(' ');
 }
 
+function getForeColor(color){
+  return '\x1b[' + (30 + exports.colors[color]) + 'm';
+};
+
+function getBackColor(color){
+  return '\x1b[' + (40 + exports.colors[color]) + 'm';
+};
+
 function debugLogger(namespace) {
   var log = vmDebug(namespace);
   var debug = vmDebug(namespace + DEBUG_NAMESPACE);
@@ -77,7 +97,7 @@ function debugLogger(namespace) {
   Object.keys(levels).forEach(function(level) {
     var levelLog = levels[level].debugLogger ? debug : log;
     var color = vmDebug.useColors ? levels[level].color : '';
-    var reset = vmDebug.useColors ? RESET : '';
+    var reset = vmDebug.useColors ? exports.colorReset : '';
 
     logger[level] = function(message, e) {
       var errorStrings = getErrorMessage(e);
