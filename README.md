@@ -42,6 +42,18 @@ Prints the message prepended by log level. If the terminal supports colors, the 
   myapp       INFO   I'm an info output +1ms
 ```
 
+###### `getForeColor(color)`
+Returns an ANSI foreground color code string. `color` is one of `black, red, green, yellow, blue, magenta, cyan, white`
+Example:
+``` javascript
+  debugLogger.getForeColor('cyan')
+  // returns '\x1b[36m'
+```
+
+###### `getBackColor(color)`
+Returns an ANSI background color code string.
+
+
 ## Properties
 ###### `log.logger`
 Returns the default debug instance.
