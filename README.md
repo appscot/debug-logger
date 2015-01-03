@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/debug-logger.svg)](http://badge.fury.io/js/debug-logger)
+
 debug-logger
 ============
 
