@@ -24,10 +24,77 @@ log.debug("I'm a debug output");
 log.info("I'm an info output");
 log.warn("I'm a warn output");
 log.error("I'm an error output");
-
-log.error('Something failed:', new Error('error message'));
 ```
 ![screenshot](https://raw.githubusercontent.com/wiki/appscot/debug-logger/ScreenShot.png)
+
+### Inspect error/object
+```javascript
+var err = new Error('error message');
+err.stack = 'the stack\nline2\nline3';
+
+log.error('Something failed:', err);
+
+var obj = {
+  anumber : 1234,
+  astring : 'str',
+  adate : new Date(),
+  aboolean : true
+};
+log.info("let's inspect 'obj'", obj);
+```
+![inspect error/object](https://raw.githubusercontent.com/wiki/appscot/debug-logger/error_object.png)
+
+### Original `debug` instances and enabled property
+```javascript
+log.info.logger("the default instance of debug, using 'myapp' namespace");
+log.debug.logger("the debug instance of debug, using 'myapp:debug' namespace");
+
+if (log.debug.enabled) {
+  // This only runs if environment variable DEBUG includes "myapp:debug" namespace
+  log.debug("Debug is enabled");
+}
+```
+![enabled](https://raw.githubusercontent.com/wiki/appscot/debug-logger/enabled.png)
+
+### util.inspect options
+Full `util.inspect` options available at [nodejs.org](http://nodejs.org/api/util.html#util_util_inspect_object_options).
+```javascript
+var debugLogger = require('debug-logger');
+debugLogger.inspectOptions = {
+  colors : true
+};
+log.info('By enabling colors we get this nice colored example:', {
+  anumber : 1234,
+  astring : 'str',
+  adate : new Date(),
+  aboolean : true
+});
+```
+![inspect](https://raw.githubusercontent.com/wiki/appscot/debug-logger/inspect.png)
+
+### Customize available log levels
+```javascript
+debugLogger.levels.error.color = debugLogger.getForeColor('magenta');
+debugLogger.levels.debug.color = debugLogger.getBackColor('cyan') + debugLogger.getForeColor('white');
+
+var customColorLog = debugLogger('myapp');
+customColorLog.error("I'm a 'magenta' error output");
+customColorLog.debug("I'm a 'cyan'/'white' debug output");
+```
+![customize log](https://raw.githubusercontent.com/wiki/appscot/debug-logger/customize_log.png)
+
+### Add log levels
+```javascript
+debugLogger.levels.silly = {
+  color : debugLogger.getForeColor('magenta'),
+  prefix : 'SILLY  ',
+  namespaceSuffix : ':silly'
+};
+
+var sillyLog = debugLogger('myapp');
+sillyLog.silly("I'm a silly output");
+```
+![add log levels](https://raw.githubusercontent.com/wiki/appscot/debug-logger/silly.png)
 
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
@@ -53,17 +120,9 @@ Example:
 ###### `getBackColor(color)`
 Returns an ANSI background color code string.
 
-
 ## Properties
-###### `log.logger`
-Returns the default debug instance.
+###### `log[level].logger`
+Returns the default debug instance used by `level`.
 
-###### `log.debugLogger`
-Returns the debug debug instance which was instanciated with "*provided_namespace*:debug".
-
-###### `log.isEnabled`
-Boolean indicating if default logger is enabled.
-
-###### `log.isDebugEnabled`
-Boolean indicating if debug logger is enabled.
-
+###### `log[level].enabled`
+Boolean indicating if `level`'s logger is enabled.
