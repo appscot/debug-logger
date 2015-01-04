@@ -80,18 +80,9 @@ function debugLogger(namespace) {
   var levels = exports.levels;
   var defaultPadding = '\n' + getPadding(2);
   var log = vmDebug(namespace);
-  var debug = vmDebug(namespace + levels.debug.namespaceSuffix);
   var debugLoggers = { 'default': log };
-  debugLoggers[levels.debug.namespaceSuffix] = debug;
 
-  var logger = {
-    logger : log,
-    debugLogger : debug,
-    isEnabled : log.enabled,
-    isDebugEnabled : debug.enabled,
-    loggers : {}
-  };
-  
+  var logger = {};
   
   Object.keys(levels).forEach(function(level) {
     var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
@@ -99,15 +90,17 @@ function debugLogger(namespace) {
       debugLoggers[loggerNamespaceSuffix] = vmDebug(namespace + loggerNamespaceSuffix);
     }
     var levelLog = debugLoggers[loggerNamespaceSuffix];
-    logger.loggers[level] = levelLog;
     var color = vmDebug.useColors ? levels[level].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
-    logger[level] = function(message, e) {
+    logger[level] = function (message, e) {
       var errorStrings = getErrorMessage(e);
       var padding = errorStrings[1] != '' ? defaultPadding : '';
       levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
+    
+    logger[level].logger = levelLog;
+    logger[level].enabled = levelLog.enabled;
   });
 
   return logger;
