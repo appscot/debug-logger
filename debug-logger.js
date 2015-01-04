@@ -9,27 +9,22 @@ exports.getBackColor = getBackColor;
 exports.inspectOptions = {};
 
 exports.colors = {
-  black:    0,
-  red:      1,
-  green:    2,
-  yellow:   3,
-  blue:     4,
-  magenta:  5,
-  cyan:     6,
-  white:    7
+  black :   0,
+  red :     1,
+  green :   2,
+  yellow :  3,
+  blue :    4,
+  magenta : 5,
+  cyan :    6,
+  white :   7
 };
-
 exports.colorReset = '\x1b[0m';
-
-
-var DEBUG_NAMESPACE = ':debug';
-
 
 exports.levels = {
   debug : {
     color : getForeColor('blue'),
     prefix :       'DEBUG  ',
-    debugLogger : true
+    namespaceSuffix : ':debug'
   },
   info : {
     color : getForeColor('green'),
@@ -82,20 +77,29 @@ function getBackColor(color){
 };
 
 function debugLogger(namespace) {
-  var log = vmDebug(namespace);
-  var debug = vmDebug(namespace + DEBUG_NAMESPACE);
+  var levels = exports.levels;
   var defaultPadding = '\n' + getPadding(2);
+  var log = vmDebug(namespace);
+  var debug = vmDebug(namespace + levels.debug.namespaceSuffix);
+  var debugLoggers = { 'default': log };
+  debugLoggers[levels.debug.namespaceSuffix] = debug;
 
   var logger = {
     logger : log,
     debugLogger : debug,
     isEnabled : log.enabled,
-    isDebugEnabled : debug.enabled
+    isDebugEnabled : debug.enabled,
+    loggers : {}
   };
-
-  var levels = exports.levels;
+  
+  
   Object.keys(levels).forEach(function(level) {
-    var levelLog = levels[level].debugLogger ? debug : log;
+    var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
+    if(!debugLoggers[loggerNamespaceSuffix]){
+      debugLoggers[loggerNamespaceSuffix] = vmDebug(namespace + loggerNamespaceSuffix);
+    }
+    var levelLog = debugLoggers[loggerNamespaceSuffix];
+    logger.loggers[level] = levelLog;
     var color = vmDebug.useColors ? levels[level].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
