@@ -9,27 +9,22 @@ exports.getBackColor = getBackColor;
 exports.inspectOptions = {};
 
 exports.colors = {
-  black:    0,
-  red:      1,
-  green:    2,
-  yellow:   3,
-  blue:     4,
-  magenta:  5,
-  cyan:     6,
-  white:    7
+  black :   0,
+  red :     1,
+  green :   2,
+  yellow :  3,
+  blue :    4,
+  magenta : 5,
+  cyan :    6,
+  white :   7
 };
-
 exports.colorReset = '\x1b[0m';
-
-
-var DEBUG_NAMESPACE = ':debug';
-
 
 exports.levels = {
   debug : {
     color : getForeColor('blue'),
     prefix :       'DEBUG  ',
-    debugLogger : true
+    namespaceSuffix : ':debug'
   },
   info : {
     color : getForeColor('green'),
@@ -67,7 +62,7 @@ function getErrorMessage(e) {
   }
   errorStrings[1] = 'Inspected object:\n' + util.inspect(e, exports.inspectOptions);
   return errorStrings;
-};
+}
 
 function getPadding(size){
   return new Array(size+1).join(' ');
@@ -75,36 +70,38 @@ function getPadding(size){
 
 function getForeColor(color){
   return '\x1b[' + (30 + exports.colors[color]) + 'm';
-};
+}
 
 function getBackColor(color){
   return '\x1b[' + (40 + exports.colors[color]) + 'm';
-};
+}
 
 function debugLogger(namespace) {
-  var log = vmDebug(namespace);
-  var debug = vmDebug(namespace + DEBUG_NAMESPACE);
-  var defaultPadding = '\n' + getPadding(2);
-
-  var logger = {
-    logger : log,
-    debugLogger : debug,
-    isEnabled : log.enabled,
-    isDebugEnabled : debug.enabled
-  };
-
   var levels = exports.levels;
+  var defaultPadding = '\n' + getPadding(2);
+  var log = vmDebug(namespace);
+  var debugLoggers = { 'default': log };
+
+  var logger = {};
+  
   Object.keys(levels).forEach(function(level) {
-    var levelLog = levels[level].debugLogger ? debug : log;
+    var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
+    if(!debugLoggers[loggerNamespaceSuffix]){
+      debugLoggers[loggerNamespaceSuffix] = vmDebug(namespace + loggerNamespaceSuffix);
+    }
+    var levelLog = debugLoggers[loggerNamespaceSuffix];
     var color = vmDebug.useColors ? levels[level].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
-    logger[level] = function(message, e) {
+    logger[level] = function (message, e) {
       var errorStrings = getErrorMessage(e);
-      var padding = errorStrings[1] != '' ? defaultPadding : '';
+      var padding = errorStrings[1] !== '' ? defaultPadding : '';
       levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
+    
+    logger[level].logger = levelLog;
+    logger[level].enabled = levelLog.enabled;
   });
 
   return logger;
-};
+}
