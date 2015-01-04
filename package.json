@@ -1,7 +1,7 @@
 {
   "name": "debug-logger",
   "version": "0.2.0",
-  "description": "A wrapper for visionmedia's debug logger",
+  "description": "A wrapper for visionmedia's debug logger, adding levels and colored output",
   "main": "debug-logger.js",
   "repository": {
     "type": "git",
