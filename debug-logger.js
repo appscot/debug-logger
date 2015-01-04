@@ -62,7 +62,7 @@ function getErrorMessage(e) {
   }
   errorStrings[1] = 'Inspected object:\n' + util.inspect(e, exports.inspectOptions);
   return errorStrings;
-};
+}
 
 function getPadding(size){
   return new Array(size+1).join(' ');
@@ -70,11 +70,11 @@ function getPadding(size){
 
 function getForeColor(color){
   return '\x1b[' + (30 + exports.colors[color]) + 'm';
-};
+}
 
 function getBackColor(color){
   return '\x1b[' + (40 + exports.colors[color]) + 'm';
-};
+}
 
 function debugLogger(namespace) {
   var levels = exports.levels;
@@ -95,7 +95,7 @@ function debugLogger(namespace) {
 
     logger[level] = function (message, e) {
       var errorStrings = getErrorMessage(e);
-      var padding = errorStrings[1] != '' ? defaultPadding : '';
+      var padding = errorStrings[1] !== '' ? defaultPadding : '';
       levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
     
@@ -104,4 +104,4 @@ function debugLogger(namespace) {
   });
 
   return logger;
-};
+}
