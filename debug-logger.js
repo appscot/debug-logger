@@ -27,7 +27,7 @@ exports.levels = {
     namespaceSuffix : ':debug'
   },
   log : {
-    color : getForeColor('green'),
+    color : '',
     prefix : '      LOG    '
   },
   info : {
