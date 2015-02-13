@@ -2,6 +2,7 @@ var log = require('..')('myapp');
 
 // The below only shows up if environment variable DEBUG includes "myapp" namespace
 log.debug("I'm a debug output");
+log.log("I'm a log output");
 log.info("I'm an info output");
 log.warn("I'm a warn output");
 log.error("I'm an error output");
