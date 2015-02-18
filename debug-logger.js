@@ -80,31 +80,39 @@ function getBackColor(color){
   return '\x1b[' + (40 + exports.colors[color]) + 'm';
 }
 
+var debugInstances = {};
+function getDebugInstance(namespace){
+  if(!debugInstances[namespace]){
+    debugInstances[namespace] = vmDebug(namespace);
+  }
+  return debugInstances[namespace]; 
+}
+
 function debugLogger(namespace) {
   var levels = exports.levels;
   var defaultPadding = '\n' + getPadding(2);
-  var log = vmDebug(namespace);
-  var debugLoggers = { 'default': log };
+  var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
 
   var logger = {};
   
   Object.keys(levels).forEach(function(level) {
     var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
     if(!debugLoggers[loggerNamespaceSuffix]){
-      debugLoggers[loggerNamespaceSuffix] = vmDebug(namespace + loggerNamespaceSuffix);
+      debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix);
     }
-    var levelLog = debugLoggers[loggerNamespaceSuffix];
+    var levelLogger = debugLoggers[loggerNamespaceSuffix];
     var color = vmDebug.useColors ? levels[level].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
     logger[level] = function (message, e) {
       var errorStrings = getErrorMessage(e);
       var padding = errorStrings[1] !== '' ? defaultPadding : '';
+      var levelLog = levelLogger();
       levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
     
-    logger[level].logger = levelLog;
-    logger[level].enabled = levelLog.enabled;
+    logger[level].logger  = function(){ return levelLogger(); };
+    logger[level].enabled = function(){ return levelLogger().enabled; };
   });
 
   return logger;
