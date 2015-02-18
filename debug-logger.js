@@ -21,6 +21,11 @@ exports.colors = {
 exports.colorReset = '\x1b[0m';
 
 exports.levels = {
+  trace : {
+    color : getForeColor('cyan'),
+    prefix :       'TRACE  ',
+    namespaceSuffix : ':trace'
+  },
   debug : {
     color : getForeColor('blue'),
     prefix :       'DEBUG  ',
@@ -105,6 +110,7 @@ function debugLogger(namespace) {
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
     logger[level] = function (message, e) {
+      // console.log('-> No. debug instances: ' + Object.keys(debugInstances).length);
       var errorStrings = getErrorMessage(e);
       var padding = errorStrings[1] !== '' ? defaultPadding : '';
       var levelLog = levelLogger();

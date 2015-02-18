@@ -1,6 +1,7 @@
 var log = require('..')('myapp');
 
 // The below only shows up if environment variable DEBUG includes "myapp" namespace
+log.trace("I'm a trace output");
 log.debug("I'm a debug output");
 log.log("I'm a log output");
 log.info("I'm an info output");
@@ -63,6 +64,14 @@ if(sillyLog.silly.enabled()){
   sillyLog.silly("I'm a silly output");
 } else {
   console.log("Silly is disabled, please add 'myapp:silly' namespace to DEBUG environment variable");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly\n");
 }
+
+if (!log.log.enabled()) {
+  // This only runs if environment variable DEBUG includes "myapp" namespace
+  console.log("You probably haven't seen much because the default logger is disabled");
+  console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp\n");
+}
+
 
