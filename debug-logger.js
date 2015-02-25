@@ -24,30 +24,84 @@ exports.levels = {
   trace : {
     color : getForeColor('cyan'),
     prefix :       'TRACE  ',
-    namespaceSuffix : ':trace'
+    namespaceSuffix : ':trace',
+    level : 0
   },
   debug : {
     color : getForeColor('blue'),
     prefix :       'DEBUG  ',
-    namespaceSuffix : ':debug'
+    namespaceSuffix : ':debug',
+    level : 1
   },
   log : {
     color : '',
-    prefix : '      LOG    '
+    prefix : '      LOG    ',
+    level : 2
   },
   info : {
     color : getForeColor('green'),
-    prefix : '      INFO   '
+    prefix : '      INFO   ',
+    level : 3
   },
   warn : {
     color : getForeColor('yellow'),
-    prefix : '      WARN   '
+    prefix : '      WARN   ',
+    level : 4
   },
   error : {
     color : getForeColor('red'),
-    prefix : '      ERROR  '
+    prefix : '      ERROR  ',
+    level : 5
   }
 };
+
+
+function getLogLevel(namespace) {
+  if(!process.env.DEBUG_LEVEL) {
+    return 0;
+  }
+  var debugLevel = process.env.DEBUG_LEVEL.toLowerCase();
+  if(debugLevel.indexOf('*:') === 0){
+    return hasLogLevel(debugLevel.slice(2)) || 0;
+  }
+  var hasLevel = hasLogLevel(debugLevel);
+  if(hasLevel !== null){
+    return hasLevel;
+  }
+  if(!namespace) {
+    return 0;
+  }
+  //currently we will only process the first part of namespace
+  var appNamespace = namespace.split(':')[0].toLowerCase();
+  
+  var debugLevelParts = debugLevel.split(',');
+  
+  var i;
+  for(i = 0; i < debugLevelParts.length; i++){
+    var parts = debugLevelParts[i].split(':');
+    if(appNamespace === parts[0]){
+      return hasLogLevel(parts[parts.length-1]) || 0;
+    }
+  }
+  return 0;
+}
+
+function hasLogLevel(level) {
+  if(!level) {
+    return null;
+  }
+  if (!isNaN(level)){
+    return level;
+  }
+  else if(isString(level) && exports.levels[level]){
+    return exports.levels[level].level || 0;
+  }
+  return null;
+}
+
+function isString(str){
+  return typeof str === 'string' || str instanceof String;
+}
 
 function getErrorMessage(e) {
   var errorStrings = ['', ''];
@@ -55,7 +109,7 @@ function getErrorMessage(e) {
   if ( typeof e === 'undefined') {
     return errorStrings;
   }
-  if ( typeof e === 'string' || e instanceof String) {
+  if (isString(e)) {
     errorStrings[0] = ' ' + e;
     return errorStrings;
   }
@@ -99,6 +153,7 @@ function debugLogger(namespace) {
   var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
 
   var logger = {};
+  logger.logLevel = getLogLevel(namespace);
   
   Object.keys(levels).forEach(function(level) {
     var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
@@ -111,12 +166,16 @@ function debugLogger(namespace) {
 
     logger[level] = function (message, e) {
       // console.log('-> No. debug instances: ' + Object.keys(debugInstances).length);
+      if(logger.logLevel > logger[level].level){
+        return;
+      }
       var errorStrings = getErrorMessage(e);
       var padding = errorStrings[1] !== '' ? defaultPadding : '';
       var levelLog = levelLogger();
       levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
     
+    logger[level].level = levels[level].level;
     logger[level].logger  = function(){ return levelLogger(); };
     logger[level].enabled = function(){ return levelLogger().enabled; };
   });
