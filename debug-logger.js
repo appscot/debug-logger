@@ -107,6 +107,17 @@ function isString(str){
   return typeof str === 'string' || str instanceof String;
 }
 
+function hasFormattingElements(str){
+  if(!str) { return false; }
+  var res = false;
+  ['%s', '%d', '%j'].forEach(function(elem){
+    if(str.indexOf(elem) >= 0) { 
+      res = true; 
+    }
+  });
+  return res;
+}
+
 function getErrorMessage(e) {
   var errorStrings = [' ' + e];
 
@@ -179,7 +190,13 @@ function debugLogger(namespace) {
 
     logger[levelName] = function () {
       if (logger.logLevel > logger[levelName].level) { return; }
+      
       var levelLog = levelLogger();
+      if (hasFormattingElements(arguments[0])){
+        arguments[0] = color + levels[levelName].prefix + reset + arguments[0];
+        return levelLog.apply(this, arguments);
+      }
+      
       var selfArguments = arguments;
       var errorStrings = Object.keys(selfArguments).map(function(key){
         return getErrorMessage(selfArguments[key]);

@@ -27,6 +27,7 @@ log.error('Something failed:', err);
 
 console.log();
 log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, ", makes life easier");
+log.warn("util.format style string: %s, number: %d, json: %j.", "a String", 13, { obj: 'json'});
 
 console.log();
 log.info.logger()("the default instance of debug, using 'myapp' namespace");
