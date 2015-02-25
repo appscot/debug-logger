@@ -57,7 +57,8 @@ exports.levels = {
 
 exports.styles = {
   bold      : '\x1b[1m',
-  underline : '\x1b[4m'
+  underline : '\x1b[4m',
+  inverse   : '\x1b[7m'
 };
 
 function getLogLevel(namespace) {
@@ -172,7 +173,7 @@ function getDebugInstance(namespace){
 
 function debugLogger(namespace) {
   var levels = exports.levels;
-  var defaultPadding = '\n' + getPadding(2);
+  var defaultPadding = '\n';
   var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
 
   var logger = {};
@@ -186,13 +187,13 @@ function debugLogger(namespace) {
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
     var color = vmDebug.useColors ? levels[levelName].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
-    var underline = vmDebug.useColors ? exports.styles.underline : '';
+    var inspectionHighlight = vmDebug.useColors ? exports.styles.bold : '';
 
     logger[levelName] = function () {
       if (logger.logLevel > logger[levelName].level) { return; }
       
       var levelLog = levelLogger();
-      if (hasFormattingElements(arguments[0])){
+      if (isString(arguments[0]) && hasFormattingElements(arguments[0])){
         arguments[0] = color + levels[levelName].prefix + reset + arguments[0];
         return levelLog.apply(this, arguments);
       }
@@ -205,11 +206,12 @@ function debugLogger(namespace) {
       var inspections = "";
       
       var i, param;
+      var n = 1;
       for(i=0; i<errorStrings.length; i++){
         param = errorStrings[i];
         message += param[0];
         if (param.length > 1) {
-          inspections += defaultPadding + underline + param[1] + ' (' + (i+1) + '/' + errorStrings.length + '):' + reset + '\n' + param[2];
+          inspections += defaultPadding + inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' + param[2];
         }
       };
       
