@@ -165,7 +165,6 @@ function debugLogger(namespace) {
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
     logger[levelName] = function (message, e) {
-      // console.log('-> No. debug instances: ' + Object.keys(debugInstances).length);
       if(logger.logLevel > logger[levelName].level){
         return;
       }
