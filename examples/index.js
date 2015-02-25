@@ -25,6 +25,8 @@ var err = new Error('error message');
 err.stack = 'the stack\nline2\nline3';
 log.error('Something failed:', err);
 
+console.log();
+log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, ", makes life easier");
 
 console.log();
 log.info.logger()("the default instance of debug, using 'myapp' namespace");

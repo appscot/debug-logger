@@ -55,6 +55,10 @@ exports.levels = {
   }
 };
 
+exports.styles = {
+  bold      : '\x1b[1m',
+  underline : '\x1b[4m'
+};
 
 function getLogLevel(namespace) {
   if(!process.env.DEBUG_LEVEL) {
@@ -104,26 +108,33 @@ function isString(str){
 }
 
 function getErrorMessage(e) {
-  var errorStrings = ['', ''];
+  var errorStrings = [' ' + e];
 
-  if ( typeof e === 'undefined') {
+  if (typeof e === 'undefined') {
     return errorStrings;
   }
-  if (isString(e)) {
-    errorStrings[0] = ' ' + e;
+  if (e === null) {
     return errorStrings;
   }
-  if ( e instanceof Error) {
+  if (e instanceof Date) {
+    return errorStrings;
+  }
+  if (e instanceof Error) {
     errorStrings[0] = ' ' + e.toString();
     if (e.stack) {
-      errorStrings[1] = 'Stack trace:\n' + e.stack;
+      errorStrings[1] = 'Stack trace';
+      errorStrings[2] = e.stack;
     }
     return errorStrings;
   }
-  if (e && typeof e.toString !== 'undefined') {
-    errorStrings[0] = ' ' + e.toString();
+  if (typeof e === 'object' || e instanceof Object) {
+    if (typeof e.toString !== 'undefined') {
+      errorStrings[0] = ' ' + e.toString();
+    }
+    errorStrings[1] = 'Inspected object';
+    errorStrings[2] = util.inspect(e, exports.inspectOptions);
   }
-  errorStrings[1] = 'Inspected object:\n' + util.inspect(e, exports.inspectOptions);
+
   return errorStrings;
 }
 
@@ -138,6 +149,7 @@ function getForeColor(color){
 function getBackColor(color){
   return '\x1b[' + (40 + exports.colors[color]) + 'm';
 }
+
 
 var debugInstances = {};
 function getDebugInstance(namespace){
@@ -163,15 +175,28 @@ function debugLogger(namespace) {
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
     var color = vmDebug.useColors ? levels[levelName].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
+    var underline = vmDebug.useColors ? exports.styles.underline : '';
 
-    logger[levelName] = function (message, e) {
-      if(logger.logLevel > logger[levelName].level){
-        return;
-      }
-      var errorStrings = getErrorMessage(e);
-      var padding = errorStrings[1] !== '' ? defaultPadding : '';
+    logger[levelName] = function () {
+      if (logger.logLevel > logger[levelName].level) { return; }
       var levelLog = levelLogger();
-      levelLog(color + levels[levelName].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
+      var selfArguments = arguments;
+      var errorStrings = Object.keys(selfArguments).map(function(key){
+        return getErrorMessage(selfArguments[key]);
+      });
+      var message = "";
+      var inspections = "";
+      
+      var i, param;
+      for(i=0; i<errorStrings.length; i++){
+        param = errorStrings[i];
+        message += param[0];
+        if (param.length > 1) {
+          inspections += defaultPadding + underline + param[1] + ' (' + (i+1) + '/' + errorStrings.length + '):' + reset + '\n' + param[2];
+        }
+      };
+      
+      levelLog(color + levels[levelName].prefix + reset + message + inspections);
     };
     
     logger[levelName].level = levels[levelName].level;
