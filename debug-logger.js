@@ -155,29 +155,29 @@ function debugLogger(namespace) {
   var logger = {};
   logger.logLevel = getLogLevel(namespace);
   
-  Object.keys(levels).forEach(function(level) {
-    var loggerNamespaceSuffix = levels[level].namespaceSuffix ? levels[level].namespaceSuffix : 'default';
+  Object.keys(levels).forEach(function(levelName) {
+    var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';
     if(!debugLoggers[loggerNamespaceSuffix]){
       debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix);
     }
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
-    var color = vmDebug.useColors ? levels[level].color : '';
+    var color = vmDebug.useColors ? levels[levelName].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
 
-    logger[level] = function (message, e) {
+    logger[levelName] = function (message, e) {
       // console.log('-> No. debug instances: ' + Object.keys(debugInstances).length);
-      if(logger.logLevel > logger[level].level){
+      if(logger.logLevel > logger[levelName].level){
         return;
       }
       var errorStrings = getErrorMessage(e);
       var padding = errorStrings[1] !== '' ? defaultPadding : '';
       var levelLog = levelLogger();
-      levelLog(color + levels[level].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
+      levelLog(color + levels[levelName].prefix + reset + message + errorStrings[0] + padding + errorStrings[1]);
     };
     
-    logger[level].level = levels[level].level;
-    logger[level].logger  = function(){ return levelLogger(); };
-    logger[level].enabled = function(){ return levelLogger().enabled; };
+    logger[levelName].level = levels[levelName].level;
+    logger[levelName].logger  = function(){ return levelLogger(); };
+    logger[levelName].enabled = function(){ return levelLogger().enabled; };
   });
 
   return logger;

@@ -56,7 +56,8 @@ console.log();
 debugLogger.levels.silly = {
   color : debugLogger.getForeColor('magenta'),
   prefix : 'SILLY  ',
-  namespaceSuffix : ':silly'
+  namespaceSuffix : ':silly',
+  level : 0
 };
 var sillyLog = debugLogger('myapp');
 sillyLog.info("Is silly logger enabled? " + sillyLog.silly.enabled());
