@@ -211,7 +211,8 @@ function debugLogger(namespace) {
         param = errorStrings[i];
         message += param[0];
         if (param.length > 1) {
-          inspections += defaultPadding + inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' + param[2];
+          var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
+          inspections += defaultPadding + inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' + highlightStack + param[2] + reset;
         }
       };
       

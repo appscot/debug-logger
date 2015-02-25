@@ -26,6 +26,10 @@ err.stack = 'the stack\nline2\nline3';
 log.error('Something failed:', err);
 
 console.log();
+log.warn("You can use log.<level>(err) and the stack trace is printed on the level's color");
+log.warn(err);
+
+console.log();
 log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, ", makes life easier");
 log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { obj: 'json'});
 
