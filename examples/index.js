@@ -77,21 +77,21 @@ if(sillyLog.silly.enabled()){
   sillyLog.silly("I'm a silly output");
 } else {
   console.log("Silly is disabled, please add 'myapp:silly' namespace to DEBUG environment variable");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly\n");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly");
 }
 
-debugLogger.ensureLineBreak();
-var alwaysPrintAtStartOfLineLog = debugLogger('myapp');
+console.log();
+var alwaysPrintAtStartOfLineLog = debugLogger.config({ ensureNewline: true })('myapp');
 process.stdout.write('Some text without a line break');
-alwaysPrintAtStartOfLineLog.info('from the start');
+alwaysPrintAtStartOfLineLog.warn('from the start');
 
 
-if (!log.log.enabled()) {
+if (!log.error.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp" namespace
   console.log("You probably haven't seen much because the default logger is disabled");
   console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
   console.log("e.g.: export DEBUG=$DEBUG,myapp");
-} else {
+} else if(log.log.enabled()) {
   console.log("\nNow set DEBUG_LEVEL environment variable to warn and run this example again");
   console.log("e.g.: export DEBUG_LEVEL=warn");
 }

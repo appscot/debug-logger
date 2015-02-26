@@ -1,17 +1,23 @@
 'use strict';
 
-var util = require('util');
-var vmDebug = require('debug');
-var hookStdout = require('./stdout-spy');
+var util = require('util'),
+    vmDebug = require('debug'),
+    streamSpy = require('./stream-spy');
+
+
 exports = module.exports = debugLogger;
 exports.getForeColor = getForeColor;
 exports.getBackColor = getBackColor;
 exports.debug = vmDebug;
 
-var ensureLineBreakEnabled = false;
-exports.ensureLineBreak = function(){
-  hookStdout.enable();
-  ensureLineBreakEnabled = true;
+exports.config = function config(options){
+  options = options || {};
+  if(options.ensureNewline){
+    ensureNewline();
+  }
+  if(options.inspectOptions){
+    exports.inspectOptions = options.inspectOptions;
+  }
   return debugLogger;
 };
 
@@ -69,6 +75,16 @@ exports.styles = {
   underline : '\x1b[4m',
   inverse   : '\x1b[7m'
 };
+
+
+var ensureNewlineEnabled = false;
+var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
+function ensureNewline(){
+  if(fd !== 1 && fd !== 2){ return; }
+  streamSpy.enable();
+  ensureNewlineEnabled = true;
+  return debugLogger;
+}
 
 function getLogLevel(namespace) {
   if(!process.env.DEBUG_LEVEL) {
@@ -159,10 +175,6 @@ function getErrorMessage(e) {
   return errorStrings;
 }
 
-function getPadding(size){
-  return new Array(size+1).join(' ');
-}
-
 function getForeColor(color){
   return '\x1b[' + (30 + exports.colors[color]) + 'm';
 }
@@ -170,7 +182,6 @@ function getForeColor(color){
 function getBackColor(color){
   return '\x1b[' + (40 + exports.colors[color]) + 'm';
 }
-
 
 var debugInstances = {};
 function getDebugInstance(namespace){
@@ -180,9 +191,9 @@ function getDebugInstance(namespace){
   return debugInstances[namespace]; 
 }
 
+
 function debugLogger(namespace) {
   var levels = exports.levels;
-  var defaultPadding = '\n';
   var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
 
   var logger = {};
@@ -198,7 +209,7 @@ function debugLogger(namespace) {
     var reset = vmDebug.useColors ? exports.colorReset : '';
     var inspectionHighlight = vmDebug.useColors ? exports.styles.bold : '';
 
-    function log() {
+    function logFn() {
       if (logger.logLevel > logger[levelName].level) { return; }
       
       var levelLog = levelLogger();
@@ -223,7 +234,7 @@ function debugLogger(namespace) {
         message += param[0];
         if (param.length > 1) {
           var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
-          inspections += defaultPadding +
+          inspections += '\n' +
             inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' +
             highlightStack + param[2] + reset;
         }
@@ -232,20 +243,17 @@ function debugLogger(namespace) {
       levelLog(color + levels[levelName].prefix + reset + message + inspections);
     };
 
-    if (ensureLineBreakEnabled) {
-      logger[levelName] = function() {
-        if (hookStdout.lastCharacter !== '\n') {
-          vmDebug.log('');
-        }
-        log.apply(log, arguments);
-      };
-    } else {
-      logger[levelName] = log;
-    }
-    
+    function logNewlineFn() {
+      if (streamSpy.lastCharacter !== '\n') {
+        vmDebug.log('');
+      }
+      logFn.apply(logFn, arguments);
+    };
+
+    logger[levelName] = ensureNewlineEnabled ? logNewlineFn : logFn;    
     logger[levelName].level = levels[levelName].level;
     logger[levelName].logger  = function(){ return levelLogger(); };
-    logger[levelName].enabled = function(){ return levelLogger().enabled; };
+    logger[levelName].enabled = function(){ return logger.logLevel <= logger[levelName].level && levelLogger().enabled; };
   });
 
   return logger;

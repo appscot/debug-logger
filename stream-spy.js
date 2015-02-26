@@ -21,19 +21,19 @@ function hook_stream(stream, callback) {
   };
 };
 
+
 module.exports.lastCharacter = '\n';
 function getLastCharacter(string, encoding, fd){
   module.exports.lastCharacter = string.slice(-1);
 }
 
-var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
 var unhook;
 var unhookStderr;
 module.exports.enable = function enable(){
-  if(!unhook && (fd === 1 || fd === 2)){
+  if(!unhook){
     unhook = hook_stream(process.stdout, getLastCharacter);
   }
-  if(fd === 2 && !unhookStderr){
+  if(!unhookStderr){
     unhookStderr = hook_stream(process.stderr, getLastCharacter);
   }
 };
