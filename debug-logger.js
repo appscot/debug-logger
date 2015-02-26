@@ -71,9 +71,7 @@ exports.levels = {
 };
 
 exports.styles = {
-  bold      : '\x1b[1m',
-  underline : '\x1b[4m',
-  inverse   : '\x1b[7m'
+  underline : '\x1b[4m'
 };
 
 
@@ -165,11 +163,16 @@ function getErrorMessage(e) {
     return errorStrings;
   }
   if (typeof e === 'object' || e instanceof Object) {
+    var inspection = util.inspect(e, exports.inspectOptions);
+    if(inspection.length < 55){
+      errorStrings[0] = ' ' + inspection;
+      return errorStrings;
+    }
     if (typeof e.toString !== 'undefined') {
       errorStrings[0] = ' ' + e.toString();
     }
     errorStrings[1] = 'Inspected object';
-    errorStrings[2] = util.inspect(e, exports.inspectOptions);
+    errorStrings[2] = inspection;
   }
 
   return errorStrings;
@@ -207,7 +210,7 @@ function debugLogger(namespace) {
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
     var color = vmDebug.useColors ? levels[levelName].color : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
-    var inspectionHighlight = vmDebug.useColors ? exports.styles.bold : '';
+    var inspectionHighlight = vmDebug.useColors ? exports.styles.underline : '';
 
     function logFn() {
       if (logger.logLevel > logger[levelName].level) { return; }
@@ -235,7 +238,7 @@ function debugLogger(namespace) {
         if (param.length > 1) {
           var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
           inspections += '\n' +
-            inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' +
+            inspectionHighlight + '___' + param[1] + ' #' + n++ + '___' + reset +'\n' +
             highlightStack + param[2] + reset;
         }
       };
