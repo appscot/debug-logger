@@ -194,6 +194,8 @@ function debugLogger(namespace) {
       if (logger.logLevel > logger[levelName].level) { return; }
       
       var levelLog = levelLogger();
+      if(!levelLog.enabled) { return; }
+      
       if (isString(arguments[0]) && hasFormattingElements(arguments[0])){
         arguments[0] = color + levels[levelName].prefix + reset + arguments[0];
         return levelLog.apply(this, arguments);
