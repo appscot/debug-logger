@@ -3,11 +3,11 @@
 debug-logger
 ============
 
-A thin wrapper for visionmedia's debug logger, adding levels and colored output.
+A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 
 ## Overview
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
-`debug-logger` is a convenicence wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` contains 2 instances of `debug`, one for general purpose logging and another using `namespace:debug` for debug logs.
+`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` contains 2 instances of `debug`, one for general purpose logging and another using `namespace:debug` for debug logs.
 
 AppsCot uses `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
@@ -99,17 +99,31 @@ sillyLog.silly("I'm a silly output");
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
 ## Methods
-###### `log.debug(message, [Error|Object])`
-###### `log.info(message, [Error|Object])`
-###### `log.warn(message, [Error|Object])`
-###### `log.error(message, [Error|Object])`
-Prints the message prepended by log level. If the terminal supports colors, the level will be one of: blue, green, yellow, red. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted. Example:
+
+### Instance Methods
+
+#### `log.trace([data][, ...])`
+#### `log.debug([data][, ...])`
+#### `log.log([data][, ...])`
+#### `log.info([data][, ...])`
+#### `log.warn([data][, ...])`
+#### `log.error([data][, ...])`
+Prints the data prepended by log level. If the terminal supports colors, the level will be one of: blue, green, yellow, red. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted. Example:
 ```
   myapp:debug DEBUG  I'm a debug output +0ms
   myapp       INFO   I'm an info output +1ms
 ```
+This function can take multiple arguments in a printf()-like way, if formatting elements are not found in the first string then util.inspect is used on each argument.
 
-###### `getForeColor(color)`
+#### `log[level].logger()`
+Returns the default debug instance used by `level`.
+
+#### `log[level].enabled()`
+Boolean indicating if `level`'s logger is enabled.
+
+### Module Methods
+
+#### `getForeColor(color)`
 Returns an ANSI foreground color code string. `color` is one of `black, red, green, yellow, blue, magenta, cyan, white`
 Example:
 ``` javascript
@@ -117,12 +131,9 @@ Example:
   // returns '\x1b[36m'
 ```
 
-###### `getBackColor(color)`
+#### `getBackColor(color)`
 Returns an ANSI background color code string.
 
-## Properties
-###### `log[level].logger`
-Returns the default debug instance used by `level`.
 
-###### `log[level].enabled`
-Boolean indicating if `level`'s logger is enabled.
+#### `debug`
+Returns visionmedia/debug module.

@@ -1,6 +1,7 @@
 var log = require('..')('myapp');
 
 // The below only shows up if environment variable DEBUG includes "myapp" namespace
+log.trace("I'm a trace output");
 log.debug("I'm a debug output");
 log.log("I'm a log output");
 log.info("I'm an info output");
@@ -10,7 +11,7 @@ log.error("I'm an error output");
 
 console.log();
 var debugLogger = require('..');
-if (log.debug.enabled) {
+if (log.debug.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp:debug" namespace
   log.debug("Debug is enabled, let's inspect 'debugLogger.levels':", debugLogger.levels);
 } else {
@@ -26,8 +27,20 @@ log.error('Something failed:', err);
 
 
 console.log();
-log.info.logger("the default instance of debug, using 'myapp' namespace");
-log.debug.logger("the debug instance of debug, using 'myapp:debug' namespace");
+log.warn("You can use log.<level>(err) and the stack trace is printed on the level's color");
+log.warn(err);
+
+
+console.log();
+log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, "makes life easier");
+log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { obj: 'json'});
+
+
+console.log();
+log.info.logger()("the default instance of debug, using 'myapp' namespace");
+log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
+var debug = debugLogger.debug('myapp:visionmedia');
+debug('Nothing tastes better than the original!');
 
 
 console.log();
@@ -55,14 +68,27 @@ console.log();
 debugLogger.levels.silly = {
   color : debugLogger.getForeColor('magenta'),
   prefix : 'SILLY  ',
-  namespaceSuffix : ':silly'
+  namespaceSuffix : ':silly',
+  level : 0
 };
 var sillyLog = debugLogger('myapp');
-sillyLog.info("Is silly logger enabled? " + sillyLog.silly.enabled);
-if(sillyLog.silly.enabled){
+sillyLog.info("Is silly logger enabled? " + sillyLog.silly.enabled());
+if(sillyLog.silly.enabled()){
   sillyLog.silly("I'm a silly output");
 } else {
   console.log("Silly is disabled, please add 'myapp:silly' namespace to DEBUG environment variable");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp:silly\n");
 }
+
+if (!log.log.enabled()) {
+  // This only runs if environment variable DEBUG includes "myapp" namespace
+  console.log("You probably haven't seen much because the default logger is disabled");
+  console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp");
+} else {
+  console.log("\nNow set DEBUG_LEVEL environment variable to warn and run this example again");
+  console.log("e.g.: export DEBUG_LEVEL=warn");
+}
+console.log();
+
 
