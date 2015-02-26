@@ -79,7 +79,11 @@ if (!log.log.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp" namespace
   console.log("You probably haven't seen much because the default logger is disabled");
   console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp\n");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp");
+} else {
+  console.log("\nNow set DEBUG_LEVEL environment variable to warn and run this example again");
+  console.log("e.g.: export DEBUG_LEVEL=warn");
 }
+console.log();
 
 
