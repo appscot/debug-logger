@@ -99,6 +99,9 @@ sillyLog.silly("I'm a silly output");
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
 ## Methods
+
+### Instance Methods
+
 #### `log.trace([data][, ...])`
 #### `log.debug([data][, ...])`
 #### `log.log([data][, ...])`
@@ -112,6 +115,14 @@ Prints the data prepended by log level. If the terminal supports colors, the lev
 ```
 This function can take multiple arguments in a printf()-like way, if formatting elements are not found in the first string then util.inspect is used on each argument.
 
+#### `log[level].logger()`
+Returns the default debug instance used by `level`.
+
+#### `log[level].enabled()`
+Boolean indicating if `level`'s logger is enabled.
+
+### Module Methods
+
 #### `getForeColor(color)`
 Returns an ANSI foreground color code string. `color` is one of `black, red, green, yellow, blue, magenta, cyan, white`
 Example:
@@ -124,8 +135,5 @@ Example:
 Returns an ANSI background color code string.
 
 
-#### `log[level].logger()`
-Returns the default debug instance used by `level`.
-
-#### `log[level].enabled()`
-Boolean indicating if `level`'s logger is enabled.
+#### `debug`
+Returns visionmedia/debug module.

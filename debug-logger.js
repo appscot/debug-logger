@@ -5,6 +5,7 @@ var vmDebug = require('debug');
 exports = module.exports = debugLogger;
 exports.getForeColor = getForeColor;
 exports.getBackColor = getBackColor;
+exports.debug = vmDebug;
 
 exports.inspectOptions = {};
 
@@ -212,7 +213,9 @@ function debugLogger(namespace) {
         message += param[0];
         if (param.length > 1) {
           var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
-          inspections += defaultPadding + inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' + highlightStack + param[2] + reset;
+          inspections += defaultPadding +
+            inspectionHighlight + '\\/\\/ ' + param[1] + ' #' + n++ + ' \\/\\/' + reset + '\n' +
+            highlightStack + param[2] + reset;
         }
       };
       

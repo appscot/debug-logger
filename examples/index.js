@@ -25,17 +25,22 @@ var err = new Error('error message');
 err.stack = 'the stack\nline2\nline3';
 log.error('Something failed:', err);
 
+
 console.log();
 log.warn("You can use log.<level>(err) and the stack trace is printed on the level's color");
 log.warn(err);
 
+
 console.log();
-log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, ", makes life easier");
+log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, "makes life easier");
 log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { obj: 'json'});
+
 
 console.log();
 log.info.logger()("the default instance of debug, using 'myapp' namespace");
 log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
+var debug = debugLogger.debug('myapp:visionmedia');
+debug('Nothing tastes better than the original!');
 
 
 console.log();
