@@ -2,10 +2,18 @@
 
 var util = require('util');
 var vmDebug = require('debug');
+var hookStdout = require('./stdout-spy');
 exports = module.exports = debugLogger;
 exports.getForeColor = getForeColor;
 exports.getBackColor = getBackColor;
 exports.debug = vmDebug;
+
+var ensureLineBreakEnabled = false;
+exports.ensureLineBreak = function(){
+  hookStdout.enable();
+  ensureLineBreakEnabled = true;
+  return debugLogger;
+};
 
 exports.inspectOptions = {};
 
@@ -190,7 +198,7 @@ function debugLogger(namespace) {
     var reset = vmDebug.useColors ? exports.colorReset : '';
     var inspectionHighlight = vmDebug.useColors ? exports.styles.bold : '';
 
-    logger[levelName] = function () {
+    function log() {
       if (logger.logLevel > logger[levelName].level) { return; }
       
       var levelLog = levelLogger();
@@ -223,6 +231,17 @@ function debugLogger(namespace) {
       
       levelLog(color + levels[levelName].prefix + reset + message + inspections);
     };
+
+    if (ensureLineBreakEnabled) {
+      logger[levelName] = function() {
+        if (hookStdout.lastCharacter !== '\n') {
+          vmDebug.log('');
+        }
+        log.apply(log, arguments);
+      };
+    } else {
+      logger[levelName] = log;
+    }
     
     logger[levelName].level = levels[levelName].level;
     logger[levelName].logger  = function(){ return levelLogger(); };

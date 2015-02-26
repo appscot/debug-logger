@@ -80,6 +80,12 @@ if(sillyLog.silly.enabled()){
   console.log("e.g.: export DEBUG=$DEBUG,myapp:silly\n");
 }
 
+debugLogger.ensureLineBreak();
+var alwaysPrintAtStartOfLineLog = debugLogger('myapp');
+process.stdout.write('Some text without a line break');
+alwaysPrintAtStartOfLineLog.info('from the start');
+
+
 if (!log.log.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp" namespace
   console.log("You probably haven't seen much because the default logger is disabled");
