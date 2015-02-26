@@ -7,9 +7,9 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 
 ## Overview
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
-`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate 3 instances of `debug`, one for general purpose logging using `namespace`, another for debug (`namespace:debug`) and another for trace (`namespace:trace`). All this is configurable.
+`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate 3 instances of `debug`, one for general purpose logging using `namespace`, another for debug (`namespace:debug`) and another for trace (`namespace:trace`). All this in configurable fashion. `debug-logger` has no dependencies besides `debug`.
 
-AppsCot uses `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
+At AppsCot we use `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
 ## Instalation
 ```javascript
@@ -95,6 +95,12 @@ var sillyLog = debugLogger('myapp');
 sillyLog.silly("I'm a silly output");
 ```
 ![add log levels](https://raw.githubusercontent.com/wiki/appscot/debug-logger/silly.png)
+
+### Filter log level (instead of namespace)
+```sh
+export DEBUG_LEVEL=info
+```
+Only info level and above logs will be outputted.
 
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
