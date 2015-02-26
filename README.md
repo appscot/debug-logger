@@ -7,7 +7,7 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 
 ## Overview
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
-`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` contains 2 instances of `debug`, one for general purpose logging and another using `namespace:debug` for debug logs.
+`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate 3 instances of `debug`, one for general purpose logging using `namespace`, another for debug (`namespace:debug`) and another for trace (`namespace:trace`). All this is configurable.
 
 AppsCot uses `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
@@ -46,10 +46,10 @@ log.info("let's inspect 'obj'", obj);
 
 ### Original `debug` instances and enabled property
 ```javascript
-log.info.logger("the default instance of debug, using 'myapp' namespace");
-log.debug.logger("the debug instance of debug, using 'myapp:debug' namespace");
+log.info.logger()("the default instance of debug, using 'myapp' namespace");
+log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
 
-if (log.debug.enabled) {
+if (log.debug.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp:debug" namespace
   log.debug("Debug is enabled");
 }
@@ -98,9 +98,11 @@ sillyLog.silly("I'm a silly output");
 
 More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
 
-## Methods
+## Reference
 
 ### Instance Methods
+
+Assuming log is an instance of debug-logger (`var log = require('debug-logger')('myapp');`).
 
 #### `log.trace([data][, ...])`
 #### `log.debug([data][, ...])`
@@ -121,9 +123,9 @@ Returns the default debug instance used by `level`.
 #### `log[level].enabled()`
 Boolean indicating if `level`'s logger is enabled.
 
-### Module Methods
+### Module
 
-#### `getForeColor(color)`
+#### `.getForeColor(color)`
 Returns an ANSI foreground color code string. `color` is one of `black, red, green, yellow, blue, magenta, cyan, white`
 Example:
 ``` javascript
@@ -131,9 +133,9 @@ Example:
   // returns '\x1b[36m'
 ```
 
-#### `getBackColor(color)`
+#### `.getBackColor(color)`
 Returns an ANSI background color code string.
 
 
-#### `debug`
+#### `.debug`
 Returns visionmedia/debug module.
