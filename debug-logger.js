@@ -134,7 +134,7 @@ function isString(str){
 function hasFormattingElements(str){
   if(!str) { return false; }
   var res = false;
-  ['%s', '%d', '%j'].forEach(function(elem){
+  ['%s', '%d', '%j', '%o'].forEach(function(elem){
     if(str.indexOf(elem) >= 0) { 
       res = true; 
     }
