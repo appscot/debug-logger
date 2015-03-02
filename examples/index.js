@@ -44,7 +44,7 @@ debug('Nothing tastes better than the original!');
 
 
 console.log();
-debugLogger.levels.error.color = debugLogger.getForeColor('magenta');
+debugLogger.levels.error.color = debugLogger.colors.magenta;
 debugLogger.levels.debug.color = debugLogger.getBackColor('cyan') + debugLogger.getForeColor('white');
 var customColorLog = debugLogger('myapp');
 customColorLog.error("I'm a 'magenta' error output");
@@ -66,8 +66,8 @@ log.info('By enabling colors we get this nice colored example:', {
 
 console.log();
 debugLogger.levels.silly = {
-  color : debugLogger.getForeColor('magenta'),
-  prefix : 'SILLY  ',
+  color : debugLogger.colors.magenta,
+  prefix : 'SILLY',
   namespaceSuffix : ':silly',
   level : 0
 };

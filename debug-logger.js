@@ -37,35 +37,39 @@ exports.colorReset = '\x1b[0m';
 
 exports.levels = {
   trace : {
-    color : getForeColor('cyan'),
-    prefix :       'TRACE  ',
+    color : exports.colors.cyan,
+    prefix : 'TRACE',
     namespaceSuffix : ':trace',
     level : 0
   },
   debug : {
-    color : getForeColor('blue'),
-    prefix :       'DEBUG  ',
+    color : exports.colors.blue,
+    prefix : 'DEBUG',
     namespaceSuffix : ':debug',
     level : 1
   },
   log : {
     color : '',
-    prefix : '      LOG    ',
+    prefix : '  LOG  ',
+    namespaceSuffix : ':log',
     level : 2
   },
   info : {
-    color : getForeColor('green'),
-    prefix : '      INFO   ',
+    color : exports.colors.green,
+    prefix : ' INFO ',
+    namespaceSuffix : ':info',
     level : 3
   },
   warn : {
-    color : getForeColor('yellow'),
-    prefix : '      WARN   ',
+    color : exports.colors.yellow,
+    prefix : ' WARN ',
+    namespaceSuffix : ':warn',
     level : 4
   },
   error : {
-    color : getForeColor('red'),
-    prefix : '      ERROR  ',
+    color : exports.colors.red,
+    prefix : 'ERROR',
+    namespaceSuffix : ':error',
     level : 5
   }
 };
@@ -179,7 +183,13 @@ function getErrorMessage(e) {
 }
 
 function getForeColor(color){
-  return '\x1b[' + (30 + exports.colors[color]) + 'm';
+  if(!isNaN(color)){
+    return '\x1b[' + (30 + color) + 'm';
+  }
+  else if(exports.colors[color]){
+    return '\x1b[' + (30 + exports.colors[color]) + 'm';
+  }
+  return color;
 }
 
 function getBackColor(color){
@@ -187,9 +197,12 @@ function getBackColor(color){
 }
 
 var debugInstances = {};
-function getDebugInstance(namespace){
+function getDebugInstance(namespace, color){
   if(!debugInstances[namespace]){
     debugInstances[namespace] = vmDebug(namespace);
+    if(!isNaN(color)){
+      debugInstances[namespace].color = color;
+    }
   }
   return debugInstances[namespace]; 
 }
@@ -205,10 +218,10 @@ function debugLogger(namespace) {
   Object.keys(levels).forEach(function(levelName) {
     var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';
     if(!debugLoggers[loggerNamespaceSuffix]){
-      debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix);
+      debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix, levels[levelName].color);
     }
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
-    var color = vmDebug.useColors ? levels[levelName].color : '';
+    var color = vmDebug.useColors ? getForeColor(levels[levelName].color) : '';
     var reset = vmDebug.useColors ? exports.colorReset : '';
     var inspectionHighlight = vmDebug.useColors ? exports.styles.underline : '';
 
