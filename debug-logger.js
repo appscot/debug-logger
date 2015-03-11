@@ -4,10 +4,7 @@ var util = require('util'),
     vmDebug = require('debug'),
     streamSpy = require('./stream-spy');
 
-
 exports = module.exports = debugLogger;
-exports.getForeColor = getForeColor;
-exports.getBackColor = getBackColor;
 exports.debug = vmDebug;
 
 exports.config = function config(options){
@@ -17,6 +14,9 @@ exports.config = function config(options){
   }
   if(options.inspectOptions){
     exports.inspectOptions = options.inspectOptions;
+  }
+  if(options.levels){
+    merge(exports.levels, options.levels);
   }
   return debugLogger;
 };
@@ -38,37 +38,37 @@ exports.colorReset = '\x1b[0m';
 exports.levels = {
   trace : {
     color : exports.colors.cyan,
-    prefix : 'TRACE',
+    prefix : '',
     namespaceSuffix : ':trace',
     level : 0
   },
   debug : {
     color : exports.colors.blue,
-    prefix : 'DEBUG',
+    prefix : '',
     namespaceSuffix : ':debug',
     level : 1
   },
   log : {
     color : '',
-    prefix : '  LOG  ',
+    prefix : '  ',
     namespaceSuffix : ':log',
     level : 2
   },
   info : {
     color : exports.colors.green,
-    prefix : ' INFO ',
+    prefix : ' ',
     namespaceSuffix : ':info',
     level : 3
   },
   warn : {
     color : exports.colors.yellow,
-    prefix : ' WARN ',
+    prefix : ' ',
     namespaceSuffix : ':warn',
     level : 4
   },
   error : {
     color : exports.colors.red,
-    prefix : 'ERROR',
+    prefix : '',
     namespaceSuffix : ':error',
     level : 5
   }
@@ -86,6 +86,20 @@ function ensureNewline(){
   streamSpy.enable();
   ensureNewlineEnabled = true;
   return debugLogger;
+}
+
+function merge(object, source){
+  Object.keys(source).forEach(function(key){
+    var val = source[key];
+    
+    if(!object[key] || !isObject(val)){
+      object[key] = val;
+      return;
+    }
+    Object.keys(val).forEach(function(idx){
+      object[key][idx] = val[idx];
+    });
+  });
 }
 
 function getLogLevel(namespace) {
@@ -135,6 +149,10 @@ function isString(str){
   return typeof str === 'string' || str instanceof String;
 }
 
+function isObject(obj){
+  return typeof obj === 'object' || obj instanceof Object;
+}
+
 function hasFormattingElements(str){
   if(!str) { return false; }
   var res = false;
@@ -147,7 +165,7 @@ function hasFormattingElements(str){
 }
 
 function getErrorMessage(e) {
-  var errorStrings = [' ' + e];
+  var errorStrings = ['' + e];
 
   if (typeof e === 'undefined') {
     return errorStrings;
@@ -159,21 +177,21 @@ function getErrorMessage(e) {
     return errorStrings;
   }
   if (e instanceof Error) {
-    errorStrings[0] = ' ' + e.toString();
+    errorStrings[0] = e.toString();
     if (e.stack) {
       errorStrings[1] = 'Stack trace';
       errorStrings[2] = e.stack;
     }
     return errorStrings;
   }
-  if (typeof e === 'object' || e instanceof Object) {
+  if (isObject(e)) {
     var inspection = util.inspect(e, exports.inspectOptions);
     if(inspection.length < 55){
-      errorStrings[0] = ' ' + inspection;
+      errorStrings[0] = inspection;
       return errorStrings;
     }
     if (typeof e.toString !== 'undefined') {
-      errorStrings[0] = ' ' + e.toString();
+      errorStrings[0] = e.toString();
     }
     errorStrings[1] = 'Inspected object';
     errorStrings[2] = inspection;
@@ -184,16 +202,12 @@ function getErrorMessage(e) {
 
 function getForeColor(color){
   if(!isNaN(color)){
-    return '\x1b[' + (30 + color) + 'm';
+    return '\x1b[3' + color + 'm';
   }
   else if(exports.colors[color]){
-    return '\x1b[' + (30 + exports.colors[color]) + 'm';
+    return '\x1b[3' + exports.colors[color] + 'm';
   }
   return color;
-}
-
-function getBackColor(color){
-  return '\x1b[' + (40 + exports.colors[color]) + 'm';
 }
 
 var debugInstances = {};
@@ -247,7 +261,7 @@ function debugLogger(namespace) {
       var n = 1;
       for(i=0; i<errorStrings.length; i++){
         param = errorStrings[i];
-        message += param[0];
+        message += i === 0 ? param[0] : ' ' + param[0];
         if (param.length > 1) {
           var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
           inspections += '\n' +
