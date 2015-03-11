@@ -1,6 +1,6 @@
 var log = require('..')('myapp');
 
-// The below only shows up if environment variable DEBUG includes "myapp" namespace
+// The below only shows up if environment variable DEBUG includes "myapp:*" namespace
 log.trace("I'm a trace output");
 log.debug("I'm a debug output");
 log.log("I'm a log output");
@@ -12,7 +12,7 @@ log.error("I'm an error output");
 console.log();
 var debugLogger = require('..');
 if (log.debug.enabled()) {
-  // This only runs if environment variable DEBUG includes "myapp:debug" namespace
+  // This only runs if environment variable DEBUG includes "myapp:debug" or "myapp:*" namespace
   log.debug("Debug is enabled, let's inspect 'debugLogger.levels':", debugLogger.levels);
 } else {
   console.log("Debug is disabled, please add 'myapp:debug' namespace to DEBUG environment variable");
@@ -86,10 +86,10 @@ alwaysPrintAtStartOfLineLog.warn('from the start');
 
 
 if (!log.error.enabled()) {
-  // This only runs if environment variable DEBUG includes "myapp" namespace
-  console.log("You probably haven't seen much because the default logger is disabled");
-  console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp");
+  // This only runs if environment variable DEBUG includes "myapp:*" namespace
+  console.log("\nYou probably haven't seen much because some loggers are disabled");
+  console.log("Please add 'myapp:*' namespace to DEBUG environment variable and try again");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp:*");
 } else if(log.log.enabled()) {
   console.log("\nNow set DEBUG_LEVEL environment variable to warn and run this example again");
   console.log("e.g.: export DEBUG_LEVEL=warn");
