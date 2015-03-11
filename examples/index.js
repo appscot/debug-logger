@@ -1,6 +1,6 @@
 var log = require('..')('myapp');
 
-// The below only shows up if environment variable DEBUG includes "myapp" namespace
+// The below only shows up if environment variable DEBUG includes "myapp:*" namespace
 log.trace("I'm a trace output");
 log.debug("I'm a debug output");
 log.log("I'm a log output");
@@ -12,7 +12,7 @@ log.error("I'm an error output");
 console.log();
 var debugLogger = require('..');
 if (log.debug.enabled()) {
-  // This only runs if environment variable DEBUG includes "myapp:debug" namespace
+  // This only runs if environment variable DEBUG includes "myapp:debug" or "myapp:*" namespace
   log.debug("Debug is enabled, let's inspect 'debugLogger.levels':", debugLogger.levels);
 } else {
   console.log("Debug is disabled, please add 'myapp:debug' namespace to DEBUG environment variable");
@@ -37,18 +37,16 @@ log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { 
 
 
 console.log();
-log.info.logger()("the default instance of debug, using 'myapp' namespace");
 log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
 var debug = debugLogger.debug('myapp:visionmedia');
 debug('Nothing tastes better than the original!');
 
 
 console.log();
-debugLogger.levels.error.color = debugLogger.getForeColor('magenta');
-debugLogger.levels.debug.color = debugLogger.getBackColor('cyan') + debugLogger.getForeColor('white');
+debugLogger.levels.error.color = debugLogger.colors.magenta;
+debugLogger.levels.error.prefix = 'ERROR ';
 var customColorLog = debugLogger('myapp');
 customColorLog.error("I'm a 'magenta' error output");
-customColorLog.debug("I'm a 'cyan'/'white' debug output");
 
 
 console.log();
@@ -66,8 +64,8 @@ log.info('By enabling colors we get this nice colored example:', {
 
 console.log();
 debugLogger.levels.silly = {
-  color : debugLogger.getForeColor('magenta'),
-  prefix : 'SILLY  ',
+  color : debugLogger.colors.magenta,
+  prefix : 'SILLY ',
   namespaceSuffix : ':silly',
   level : 0
 };
@@ -87,10 +85,10 @@ alwaysPrintAtStartOfLineLog.warn('from the start');
 
 
 if (!log.error.enabled()) {
-  // This only runs if environment variable DEBUG includes "myapp" namespace
-  console.log("You probably haven't seen much because the default logger is disabled");
-  console.log("Please add 'myapp' namespace to DEBUG environment variable and try again");
-  console.log("e.g.: export DEBUG=$DEBUG,myapp");
+  // This only runs if environment variable DEBUG includes "myapp:*" namespace
+  console.log("\nYou probably haven't seen much because some loggers are disabled");
+  console.log("Please add 'myapp:*' namespace to DEBUG environment variable and try again");
+  console.log("e.g.: export DEBUG=$DEBUG,myapp:*");
 } else if(log.log.enabled()) {
   console.log("\nNow set DEBUG_LEVEL environment variable to warn and run this example again");
   console.log("e.g.: export DEBUG_LEVEL=warn");

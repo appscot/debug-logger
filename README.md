@@ -7,7 +7,7 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 
 ## Overview
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
-`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate 3 instances of `debug`, one for general purpose logging using `namespace`, another for debug (`namespace:debug`) and another for trace (`namespace:trace`). All this in configurable fashion. `debug-logger` has no dependencies besides `debug`.
+`debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate several instances of `debug` such as `namespace:info`, `namespace:warn`, `namespace:error`, etc. All these are configurable. `debug-logger` has no dependencies besides `debug`.
 
 At AppsCot we use `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
@@ -20,7 +20,9 @@ npm install debug-logger -S
 ```javascript
 var log = require('debug-logger')('myapp');
 
+log.trace("I'm a trace output");
 log.debug("I'm a debug output");
+log.log("I'm a log output");
 log.info("I'm an info output");
 log.warn("I'm a warn output");
 log.error("I'm an error output");
@@ -46,8 +48,9 @@ log.info("let's inspect 'obj'", obj);
 
 ### Original `debug` instances and enabled property
 ```javascript
-log.info.logger()("the default instance of debug, using 'myapp' namespace");
 log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
+var debug = debugLogger.debug('myapp:visionmedia');
+debug('Nothing tastes better than the original!');
 
 if (log.debug.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp:debug" namespace
@@ -74,19 +77,18 @@ log.info('By enabling colors we get this nice colored example:', {
 
 ### Customize available log levels
 ```javascript
-debugLogger.levels.error.color = debugLogger.getForeColor('magenta');
-debugLogger.levels.debug.color = debugLogger.getBackColor('cyan') + debugLogger.getForeColor('white');
+debugLogger.levels.error.color = debugLogger.colors.magenta;
+debugLogger.levels.error.prefix = 'ERROR ';
 
 var customColorLog = debugLogger('myapp');
 customColorLog.error("I'm a 'magenta' error output");
-customColorLog.debug("I'm a 'cyan'/'white' debug output");
 ```
 ![customize log](https://raw.githubusercontent.com/wiki/appscot/debug-logger/customize_log.png)
 
 ### Add log levels
 ```javascript
 debugLogger.levels.silly = {
-  color : debugLogger.getForeColor('magenta'),
+  color : debugLogger.colors.magenta,
   prefix : 'SILLY  ',
   namespaceSuffix : ':silly'
 };
@@ -96,13 +98,20 @@ sillyLog.silly("I'm a silly output");
 ```
 ![add log levels](https://raw.githubusercontent.com/wiki/appscot/debug-logger/silly.png)
 
-### Filter log level (instead of namespace)
+### Multiple arguments / util.format style
+```javascript
+log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, "makes life easier");
+log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { obj: 'json'});
+```
+![multiple arguments](https://raw.githubusercontent.com/wiki/appscot/debug-logger/arguments.png)
+
+### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
 ```
 Only info level and above logs will be outputted.
 
-More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples/index.js).
+More examples in the [examples folder](https://github.com/appscot/debug-logger/blob/master/examples).
 
 ## Reference
 
@@ -116,10 +125,10 @@ Assuming log is an instance of debug-logger (`var log = require('debug-logger')(
 #### `log.info([data][, ...])`
 #### `log.warn([data][, ...])`
 #### `log.error([data][, ...])`
-Prints the data prepended by log level. If the terminal supports colors, the level will be one of: blue, green, yellow, red. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted. Example:
+Prints the data prepended by log level. If the terminal supports colors, each level will have a specific color. If an Error is provided, the toString() and call stack will be outputted. If an Object is provided the toString() and util.inspect() will be outputted. Example:
 ```
-  myapp:debug DEBUG  I'm a debug output +0ms
-  myapp       INFO   I'm an info output +1ms
+  myapp:debug I'm a debug output +0ms
+  myapp:info  I'm an info output +1ms
 ```
 This function can take multiple arguments in a printf()-like way, if formatting elements are not found in the first string then util.inspect is used on each argument.
 
@@ -131,17 +140,8 @@ Boolean indicating if `level`'s logger is enabled.
 
 ### Module
 
-#### `.getForeColor(color)`
-Returns an ANSI foreground color code string. `color` is one of `black, red, green, yellow, blue, magenta, cyan, white`
-Example:
-``` javascript
-  debugLogger.getForeColor('cyan')
-  // returns '\x1b[36m'
-```
-
-#### `.getBackColor(color)`
-Returns an ANSI background color code string.
-
+#### `.config(obj)`
+Configures debug-logger. Returns `debug-logger` to allow chaining operations.
 
 #### `.debug`
 Returns visionmedia/debug module.
