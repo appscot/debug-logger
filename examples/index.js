@@ -37,7 +37,6 @@ log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { 
 
 
 console.log();
-log.info.logger()("the default instance of debug, using 'myapp' namespace");
 log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
 var debug = debugLogger.debug('myapp:visionmedia');
 debug('Nothing tastes better than the original!');

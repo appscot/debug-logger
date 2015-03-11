@@ -48,8 +48,9 @@ log.info("let's inspect 'obj'", obj);
 
 ### Original `debug` instances and enabled property
 ```javascript
-log.info.logger()("the default instance of debug, using 'myapp' namespace");
 log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
+var debug = debugLogger.debug('myapp:visionmedia');
+debug('Nothing tastes better than the original!');
 
 if (log.debug.enabled()) {
   // This only runs if environment variable DEBUG includes "myapp:debug" namespace
@@ -97,7 +98,14 @@ sillyLog.silly("I'm a silly output");
 ```
 ![add log levels](https://raw.githubusercontent.com/wiki/appscot/debug-logger/silly.png)
 
-### Filter log level (instead of namespace)
+### Multiple arguments / util.format style
+```javascript
+log.log("Multiple", "arguments", "including", "objects:", { obj: 'obj'}, "makes life easier");
+log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { obj: 'json'});
+```
+![multiple arguments](https://raw.githubusercontent.com/wiki/appscot/debug-logger/arguments.png)
+
+### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
 ```
