@@ -9,6 +9,9 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
 `debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate several instances of `debug` such as `namespace:info`, `namespace:warn`, `namespace:error`, etc. All these are configurable. `debug-logger` has no dependencies besides `debug`.
 
+`debug-logger` uses the same syntax as [node.js console](https://nodejs.org/api/console.html) so you can use it as drop in replacement. 
+Check and run [examples/console.parity.js](https://github.com/appscot/debug-logger/blob/master/examples/console.parity.js) for more details.
+
 At AppsCot we use `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
 ## Instalation
