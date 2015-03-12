@@ -78,6 +78,18 @@ exports.styles = {
   underline : '\x1b[4m'
 };
 
+function time(label){
+  this.timeLabels[label] = process.hrtime();
+}
+
+function timeEnd(label, level){
+  level = level || 'log';
+  var diff = process.hrtime(this.timeLabels[label]);
+  var diffMs = (diff[0] * 1e9 + diff[1]) / 1e6;
+  this[level](label + ':', diffMs + 'ms');
+  return diffMs;
+}
+
 
 var ensureNewlineEnabled = false;
 var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
@@ -228,6 +240,10 @@ function debugLogger(namespace) {
 
   var logger = {};
   logger.logLevel = getLogLevel(namespace);
+  
+  logger.timeLabels = {};
+  logger.time = time;
+  logger.timeEnd = timeEnd;
   
   Object.keys(levels).forEach(function(levelName) {
     var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';

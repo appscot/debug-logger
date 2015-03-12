@@ -105,6 +105,22 @@ log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { 
 ```
 ![multiple arguments](https://raw.githubusercontent.com/wiki/appscot/debug-logger/arguments.png)
 
+### Measure code execution time
+```javascript
+log.time('100-elements');
+for (var i = 0; i < 100; i++) {
+  ;
+}
+log.timeEnd('100-elements');
+
+log.time('setTimeout');
+setTimeout(function(){
+  var diff = log.timeEnd('setTimeout', 'debug');
+  log.trace('log.timeEnd returns diff so it can be reused:', diff);
+}, 262);
+```
+![code time](https://raw.githubusercontent.com/wiki/appscot/debug-logger/time.png)
+
 ### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
@@ -137,6 +153,13 @@ Returns the default debug instance used by `level`.
 
 #### `log[level].enabled()`
 Boolean indicating if `level`'s logger is enabled.
+
+#### `log.time(label)`
+Mark a time.
+
+#### `log.timeEnd(label[, level])`
+Finish timer, record output. `level` will determine the logger used to output the result (defaults to 'log').
+Return duration in ms.
 
 ### Module
 
