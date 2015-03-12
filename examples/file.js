@@ -2,7 +2,16 @@
 // e.g.: node examples/file.js 3>debug.log
 process.env.DEBUG_FD=3;
 
-var log = require('..')('myapp');
+var log = require('..').config({
+  levels: { 
+    fatal: {
+      color : 5,  //magenta
+      prefix : '',
+      namespaceSuffix : ':fatal',
+      level : 6
+    }
+  }
+})('myapp');
 
 log.info("I'm an info output");
 
@@ -25,10 +34,11 @@ setTimeout(function(){
   br();
   var diff = log.timeEnd('setTimeout', 'debug');
   log.trace('log.timeEnd returns diff so it can be reused:', diff);
+  
   br();
+  log.assert(1 == 0, 'testing %s %d', 'log.assert', 666, 'fatal');
+  
 }, 262);
-
-
 
 function br(){
   require('..').debug.log('');

@@ -128,6 +128,25 @@ log.dir({ foo: { bar: 1 } }, { depth: 0 }, 'warn');
 ```
 ![dir inspect](https://raw.githubusercontent.com/wiki/appscot/debug-logger/dir.png)
 
+### Assert condition
+```javascript
+log.assert(1 == 0);
+
+// More elaborate example
+var log = require('..').config({
+  levels: { 
+    fatal: {
+      color : 5,  //magenta
+      prefix : '',
+      namespaceSuffix : ':fatal',
+      level : 6
+    }
+  }
+})('myapp');
+log.assert(1 == 0, 'testing %s %d', 'log.assert', 666, 'fatal');
+```
+![assert](https://raw.githubusercontent.com/wiki/appscot/debug-logger/assert.png)
+
 ### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
@@ -169,8 +188,12 @@ Finish timer, record output. `level` will determine the logger used to output th
 Return duration in ms.
 
 #### `log.dir(obj[, options][, level])`
-Uses util.inspect on obj and prints resulting string to stdout. This function bypasses any custom inspect() function on obj. An optional [options object](https://nodejs.org/api/console.html#console_console_dir_obj_options) may be passed that alters certain aspects of the formatted string.
+Uses util.inspect on obj and prints resulting string to the appropriate logger. This function bypasses any custom inspect() function on obj. An optional [options object](https://nodejs.org/api/console.html#console_console_dir_obj_options) may be passed that alters certain aspects of the formatted string.
 `level` will determine the logger used to output the result (defaults to 'log').
+
+#### `log.assert(value[, message][, ...][, level])`
+Similar to [console.assert()](https://nodejs.org/api/console.html#console_console_assert_value_message). 
+Additionally it outputs the error using the appropriate logger set by `level` (defaults to 'error').
 
 ### Module
 

@@ -100,6 +100,27 @@ function dir(obj, options, level){
   this[level](util.inspect(obj, options));
 }
 
+function assert(expression){
+  if (!expression) {
+    var level = 'error';
+    var arr = Array.prototype.slice.call(arguments, 1);
+    if(this[arr[arr.length-1]]){
+      level = arr[arr.length-1];
+      arr = arr.slice(0, -1);
+    }
+    var assrt = require('assert');
+    var err = new assrt.AssertionError({
+      message: util.format.apply(this, arr),
+      actual: false,
+      expected: true,
+      operator: '==',
+      stackStartFunction: assert
+    });
+    this[level](err);
+    throw err;
+  }
+}
+
 
 var ensureNewlineEnabled = false;
 var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
@@ -255,6 +276,7 @@ function debugLogger(namespace) {
   logger.time = time;
   logger.timeEnd = timeEnd;
   logger.dir = dir;
+  logger.assert = assert;
   
   Object.keys(levels).forEach(function(levelName) {
     var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';
