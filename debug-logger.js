@@ -262,9 +262,10 @@ function debugLogger(namespace) {
       debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix, levels[levelName].color);
     }
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
-    var color = vmDebug.useColors ? getForeColor(levels[levelName].color) : '';
-    var reset = vmDebug.useColors ? exports.colorReset : '';
-    var inspectionHighlight = vmDebug.useColors ? exports.styles.underline : '';
+    var useColors = vmDebug.useColors();
+    var color = useColors ? getForeColor(levels[levelName].color) : '';
+    var reset = useColors ? exports.colorReset : '';
+    var inspectionHighlight = useColors ? exports.styles.underline : '';
 
     function logFn() {
       if (logger.logLevel > logger[levelName].level) { return; }
