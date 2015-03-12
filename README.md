@@ -121,6 +121,13 @@ setTimeout(function(){
 ```
 ![code time](https://raw.githubusercontent.com/wiki/appscot/debug-logger/time.png)
 
+### Inspect object
+```javascript
+log.dir({ foo: { bar: 1 } });
+log.dir({ foo: { bar: 1 } }, { depth: 0 }, 'warn');
+```
+![dir inspect](https://raw.githubusercontent.com/wiki/appscot/debug-logger/dir.png)
+
 ### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
@@ -160,6 +167,10 @@ Mark a time.
 #### `log.timeEnd(label[, level])`
 Finish timer, record output. `level` will determine the logger used to output the result (defaults to 'log').
 Return duration in ms.
+
+#### `log.dir(obj[, options][, level])`
+Uses util.inspect on obj and prints resulting string to stdout. This function bypasses any custom inspect() function on obj. An optional [options object](https://nodejs.org/api/console.html#console_console_dir_obj_options) may be passed that alters certain aspects of the formatted string.
+`level` will determine the logger used to output the result (defaults to 'log').
 
 ### Module
 

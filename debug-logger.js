@@ -90,6 +90,16 @@ function timeEnd(label, level){
   return diffMs;
 }
 
+function dir(obj, options, level){
+  if(!level && this[options]){
+    level = options;
+    options = undefined;
+  }
+  options = options || exports.inspectOptions;
+  level = level || 'log';
+  this[level](util.inspect(obj, options));
+}
+
 
 var ensureNewlineEnabled = false;
 var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
@@ -244,6 +254,7 @@ function debugLogger(namespace) {
   logger.timeLabels = {};
   logger.time = time;
   logger.timeEnd = timeEnd;
+  logger.dir = dir;
   
   Object.keys(levels).forEach(function(levelName) {
     var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';

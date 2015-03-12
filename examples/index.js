@@ -78,6 +78,7 @@ if(sillyLog.silly.enabled()){
   console.log("e.g.: export DEBUG=$DEBUG,myapp:silly");
 }
 
+
 console.log();
 var alwaysPrintAtStartOfLineLog = debugLogger.config({ ensureNewline: true })('myapp');
 process.stdout.write('Some text without a line break');
@@ -94,5 +95,4 @@ if (!log.error.enabled()) {
   console.log("e.g.: export DEBUG_LEVEL=warn");
 }
 console.log();
-
 

@@ -6,6 +6,12 @@ var log = require('..')('myapp');
 
 log.info("I'm an info output");
 
+
+br();
+log.dir({ foo: { bar: 1 } });
+log.dir({ foo: { bar: 1 } }, { depth: 0 }, 'warn');
+
+
 br();
 log.time('100-elements');
 for (var i = 0; i < 100; i++) {
@@ -13,9 +19,10 @@ for (var i = 0; i < 100; i++) {
 }
 log.timeEnd('100-elements');
 
-br();
+
 log.time('setTimeout');
 setTimeout(function(){
+  br();
   var diff = log.timeEnd('setTimeout', 'debug');
   log.trace('log.timeEnd returns diff so it can be reused:', diff);
   br();
