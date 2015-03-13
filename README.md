@@ -150,6 +150,24 @@ log.assert(1 == 0, 'testing %s %d', 'log.assert', 666, 'fatal');
 ```
 ![assert](https://raw.githubusercontent.com/wiki/appscot/debug-logger/assert.png)
 
+### stderr vs stdout
+By default trace, debug, log and info output to stdout while warn and error output to stderr.
+This is configurable, [example](https://github.com/appscot/debug-logger/blob/master/examples/stdout_stderr.js):
+```javascript
+var log = require('debug')('myapp');
+log.trace("goes to stdout!");
+log.debug("goes to stdout!");
+log.log("goes to stdout!");
+log.info("goes to stdout!");
+log.warn("goes to stderr");
+log.error("goes to stderr");
+
+// outputting only to stdout
+var stdout = require('debug').config({ levels: { warn: { fd: 1 }, error: { fd: 1 } } })('stdoutapp');
+stdout.warn("goes to stdout!");
+stdout.error("goes to stdout!");
+```
+
 ### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
