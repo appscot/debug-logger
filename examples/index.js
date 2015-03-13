@@ -37,9 +37,11 @@ log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { 
 
 
 console.log();
-log.debug.logger()("the debug instance of debug, using 'myapp:debug' namespace");
+log('the root/default debug instance');
+log.info.logger()("the info instance of debug, using 'myapp:info' namespace");
+// debugLogger.debug references the debug module, e.g.: debugLogger.debug == require('debug')
 var debug = debugLogger.debug('myapp:visionmedia');
-debug('Nothing tastes better than the original!');
+debug('nothing tastes better than the original!');
 
 
 console.log();
@@ -78,6 +80,7 @@ if(sillyLog.silly.enabled()){
   console.log("e.g.: export DEBUG=$DEBUG,myapp:silly");
 }
 
+
 console.log();
 var alwaysPrintAtStartOfLineLog = debugLogger.config({ ensureNewline: true })('myapp');
 process.stdout.write('Some text without a line break');
@@ -94,5 +97,4 @@ if (!log.error.enabled()) {
   console.log("e.g.: export DEBUG_LEVEL=warn");
 }
 console.log();
-
 

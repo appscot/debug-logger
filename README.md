@@ -9,6 +9,9 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 [visionmedia/debug](https://github.com/visionmedia/debug) is a ubitiquous logging library with 1000+ dependants. Given how widespread it is and the convenience of namespaces it is a great logger for library modules.
 `debug-logger` is a convenience wrapper around `debug` that adds level based coloured output. Each instance of `debug-logger` will lazily instantiate several instances of `debug` such as `namespace:info`, `namespace:warn`, `namespace:error`, etc. All these are configurable. `debug-logger` has no dependencies besides `debug`.
 
+`debug-logger` uses the same syntax as [node.js console](https://nodejs.org/api/console.html) so you can use it as drop in replacement. 
+Check and run [examples/console.parity.js](https://github.com/appscot/debug-logger/blob/master/examples/console.parity.js) for more details.
+
 At AppsCot we use `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
 
 ## Instalation
@@ -105,6 +108,66 @@ log.warn("util.format style string: %s, number: %d and json: %j.", "foo", 13, { 
 ```
 ![multiple arguments](https://raw.githubusercontent.com/wiki/appscot/debug-logger/arguments.png)
 
+### Measure code execution time
+```javascript
+log.time('100-elements');
+for (var i = 0; i < 100; i++) {
+  ;
+}
+log.timeEnd('100-elements');
+
+log.time('setTimeout');
+setTimeout(function(){
+  var diff = log.timeEnd('setTimeout', 'debug');
+  log.trace('log.timeEnd returns diff so it can be reused:', diff);
+}, 262);
+```
+![code time](https://raw.githubusercontent.com/wiki/appscot/debug-logger/time.png)
+
+### Inspect object
+```javascript
+log.dir({ foo: { bar: 1 } });
+log.dir({ foo: { bar: 1 } }, { depth: 0 }, 'warn');
+```
+![dir inspect](https://raw.githubusercontent.com/wiki/appscot/debug-logger/dir.png)
+
+### Assert condition
+```javascript
+log.assert(1 == 0);
+
+// More elaborate example
+var log = require('..').config({
+  levels: { 
+    fatal: {
+      color : 5,  //magenta
+      prefix : '',
+      namespaceSuffix : ':fatal',
+      level : 6
+    }
+  }
+})('myapp');
+log.assert(1 == 0, 'testing %s %d', 'log.assert', 666, 'fatal');
+```
+![assert](https://raw.githubusercontent.com/wiki/appscot/debug-logger/assert.png)
+
+### stderr vs stdout
+By default trace, debug, log and info output to stdout while warn and error output to stderr.
+This is configurable, [example](https://github.com/appscot/debug-logger/blob/master/examples/stdout_stderr.js):
+```javascript
+var log = require('debug')('myapp');
+log.trace("goes to stdout!");
+log.debug("goes to stdout!");
+log.log("goes to stdout!");
+log.info("goes to stdout!");
+log.warn("goes to stderr");
+log.error("goes to stderr");
+
+// outputting only to stdout
+var stdout = require('debug').config({ levels: { warn: { fd: 1 }, error: { fd: 1 } } })('stdoutapp');
+stdout.warn("goes to stdout!");
+stdout.error("goes to stdout!");
+```
+
 ### Filter by log level (instead of namespace)
 ```sh
 export DEBUG_LEVEL=info
@@ -132,11 +195,32 @@ Prints the data prepended by log level. If the terminal supports colors, each le
 ```
 This function can take multiple arguments in a printf()-like way, if formatting elements are not found in the first string then util.inspect is used on each argument.
 
+#### `log([message][, ...])`
+Outputs the message using the root/default `debug` instance, without the level suffix. Example:
+```
+  myapp I'm a root/default debug instance output +0ms
+```
+
 #### `log[level].logger()`
-Returns the default debug instance used by `level`.
+Returns the default `debug` instance used by `level`.
 
 #### `log[level].enabled()`
 Boolean indicating if `level`'s logger is enabled.
+
+#### `log.time(label)`
+Mark a time.
+
+#### `log.timeEnd(label[, level])`
+Finish timer, record output. `level` will determine the logger used to output the result (defaults to 'log').
+Return duration in ms.
+
+#### `log.dir(obj[, options][, level])`
+Uses util.inspect on obj and prints resulting string to the appropriate logger. This function bypasses any custom inspect() function on obj. An optional [options object](https://nodejs.org/api/console.html#console_console_dir_obj_options) may be passed that alters certain aspects of the formatted string.
+`level` will determine the logger used to output the result (defaults to 'log').
+
+#### `log.assert(value[, message][, ...][, level])`
+Similar to [console.assert()](https://nodejs.org/api/console.html#console_console_assert_value_message). 
+Additionally it outputs the error using the appropriate logger set by `level` (defaults to 'error').
 
 ### Module
 

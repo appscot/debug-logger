@@ -40,25 +40,29 @@ exports.levels = {
     color : exports.colors.cyan,
     prefix : '',
     namespaceSuffix : ':trace',
-    level : 0
+    level : 0,
+    fd : 1  // currently only 1 (stdout) is supported. stderr is debug's standard
   },
   debug : {
     color : exports.colors.blue,
     prefix : '',
     namespaceSuffix : ':debug',
-    level : 1
+    level : 1,
+    fd : 1
   },
   log : {
     color : '',
     prefix : '  ',
     namespaceSuffix : ':log',
-    level : 2
+    level : 2,
+    fd : 1
   },
   info : {
     color : exports.colors.green,
     prefix : ' ',
     namespaceSuffix : ':info',
-    level : 3
+    level : 3,
+    fd : 1
   },
   warn : {
     color : exports.colors.yellow,
@@ -77,6 +81,50 @@ exports.levels = {
 exports.styles = {
   underline : '\x1b[4m'
 };
+
+
+function time(label){
+  this.timeLabels[label] = process.hrtime();
+}
+
+function timeEnd(label, level){
+  level = level || 'log';
+  var diff = process.hrtime(this.timeLabels[label]);
+  var diffMs = (diff[0] * 1e9 + diff[1]) / 1e6;
+  this[level](label + ':', diffMs + 'ms');
+  return diffMs;
+}
+
+function dir(obj, options, level){
+  if(!level && this[options]){
+    level = options;
+    options = undefined;
+  }
+  options = options || exports.inspectOptions;
+  level = level || 'log';
+  this[level](util.inspect(obj, options));
+}
+
+function assert(expression){
+  if (!expression) {
+    var level = 'error';
+    var arr = Array.prototype.slice.call(arguments, 1);
+    if(this[arr[arr.length-1]]){
+      level = arr[arr.length-1];
+      arr = arr.slice(0, -1);
+    }
+    var assrt = require('assert');
+    var err = new assrt.AssertionError({
+      message: util.format.apply(this, arr),
+      actual: false,
+      expected: true,
+      operator: '==',
+      stackStartFunction: assert
+    });
+    this[level](err);
+    throw err;
+  }
+}
 
 
 var ensureNewlineEnabled = false;
@@ -210,10 +258,21 @@ function getForeColor(color){
   return color;
 }
 
+function disableColors(loggerLevel, disable){
+  if(disable){
+    loggerLevel.color = '';
+    loggerLevel.reset = '';
+    loggerLevel.inspectionHighlight = '';
+  }
+}
+
 var debugInstances = {};
-function getDebugInstance(namespace, color){
+function getDebugInstance(namespace, color, fd){
   if(!debugInstances[namespace]){
     debugInstances[namespace] = vmDebug(namespace);
+    if(fd === 1 && isNaN(parseInt(process.env.DEBUG_FD))){
+      debugInstances[namespace].log = console.log.bind(console);
+    }
     if(!isNaN(color)){
       debugInstances[namespace].color = color;
     }
@@ -224,20 +283,27 @@ function getDebugInstance(namespace, color){
 
 function debugLogger(namespace) {
   var levels = exports.levels;
-  var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
+  var debugLoggers = { 'default': getDebugInstance.bind(this, namespace, '') };
 
-  var logger = {};
+  var logger = function(){
+    debugLoggers['default']().apply(this, arguments);
+  };
   logger.logLevel = getLogLevel(namespace);
+  
+  logger.timeLabels = {};
+  logger.time = time;
+  logger.timeEnd = timeEnd;
+  logger.dir = dir;
+  logger.assert = assert;
   
   Object.keys(levels).forEach(function(levelName) {
     var loggerNamespaceSuffix = levels[levelName].namespaceSuffix ? levels[levelName].namespaceSuffix : 'default';
     if(!debugLoggers[loggerNamespaceSuffix]){
-      debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix, levels[levelName].color);
+      debugLoggers[loggerNamespaceSuffix] = getDebugInstance.bind(this, namespace + loggerNamespaceSuffix, levels[levelName].color, levels[levelName].fd);
     }
     var levelLogger = debugLoggers[loggerNamespaceSuffix];
-    var color = vmDebug.useColors ? getForeColor(levels[levelName].color) : '';
-    var reset = vmDebug.useColors ? exports.colorReset : '';
-    var inspectionHighlight = vmDebug.useColors ? exports.styles.underline : '';
+    
+    var initialized = false;
 
     function logFn() {
       if (logger.logLevel > logger[levelName].level) { return; }
@@ -245,8 +311,13 @@ function debugLogger(namespace) {
       var levelLog = levelLogger();
       if(!levelLog.enabled) { return; }
       
+      if(!initialized){
+        initialized = true;
+        disableColors(logger[levelName], !levelLog.useColors);
+      }
+      
       if (isString(arguments[0]) && hasFormattingElements(arguments[0])){
-        arguments[0] = color + levels[levelName].prefix + reset + arguments[0];
+        arguments[0] = logger[levelName].color + levels[levelName].prefix + logger[levelName].reset + arguments[0];
         return levelLog.apply(this, arguments);
       }
       
@@ -263,14 +334,14 @@ function debugLogger(namespace) {
         param = errorStrings[i];
         message += i === 0 ? param[0] : ' ' + param[0];
         if (param.length > 1) {
-          var highlightStack = param[1].indexOf('Stack') >= 0 ? color : '';
+          var highlightStack = param[1].indexOf('Stack') >= 0 ? logger[levelName].color : '';
           inspections += '\n' +
-            inspectionHighlight + '___' + param[1] + ' #' + n++ + '___' + reset +'\n' +
-            highlightStack + param[2] + reset;
+            logger[levelName].inspectionHighlight + '___' + param[1] + ' #' + n++ + '___' + logger[levelName].reset +'\n' +
+            highlightStack + param[2] + logger[levelName].reset;
         }
       };
       
-      levelLog(color + levels[levelName].prefix + reset + message + inspections);
+      levelLog(logger[levelName].color + levels[levelName].prefix + logger[levelName].reset + message + inspections);
     };
 
     function logNewlineFn() {
@@ -280,10 +351,13 @@ function debugLogger(namespace) {
       logFn.apply(logFn, arguments);
     };
 
-    logger[levelName] = ensureNewlineEnabled ? logNewlineFn : logFn;    
+    logger[levelName] = ensureNewlineEnabled ? logNewlineFn : logFn;
     logger[levelName].level = levels[levelName].level;
     logger[levelName].logger  = function(){ return levelLogger(); };
     logger[levelName].enabled = function(){ return logger.logLevel <= logger[levelName].level && levelLogger().enabled; };
+    logger[levelName].color = getForeColor(levels[levelName].color);
+    logger[levelName].reset = exports.colorReset;
+    logger[levelName].inspectionHighlight = exports.styles.underline;
   });
 
   return logger;
