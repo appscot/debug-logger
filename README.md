@@ -195,8 +195,14 @@ Prints the data prepended by log level. If the terminal supports colors, each le
 ```
 This function can take multiple arguments in a printf()-like way, if formatting elements are not found in the first string then util.inspect is used on each argument.
 
+#### `log([message][, ...])`
+Outputs the message using the root/default `debug` instance, without the level suffix. Example:
+```
+  myapp I'm a root/default debug instance output +0ms
+```
+
 #### `log[level].logger()`
-Returns the default debug instance used by `level`.
+Returns the default `debug` instance used by `level`.
 
 #### `log[level].enabled()`
 Boolean indicating if `level`'s logger is enabled.

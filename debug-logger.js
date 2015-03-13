@@ -283,9 +283,11 @@ function getDebugInstance(namespace, color, fd){
 
 function debugLogger(namespace) {
   var levels = exports.levels;
-  var debugLoggers = { 'default': getDebugInstance.bind(this, namespace) };
+  var debugLoggers = { 'default': getDebugInstance.bind(this, namespace, '') };
 
-  var logger = {};
+  var logger = function(){
+    debugLoggers['default']().apply(this, arguments);
+  };
   logger.logLevel = getLogLevel(namespace);
   
   logger.timeLabels = {};
