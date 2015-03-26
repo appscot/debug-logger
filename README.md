@@ -12,7 +12,7 @@ A thin wrapper for visionmedia/debug logger, adding levels and colored output.
 `debug-logger` uses the same syntax as [node.js console](https://nodejs.org/api/console.html) so you can use it as drop in replacement. 
 Check and run [examples/console.parity.js](https://github.com/appscot/debug-logger/blob/master/examples/console.parity.js) for more details.
 
-At AppsCot we use `debug-logger` in [waterline-orientdb](https://github.com/appscot/waterline-orientdb).
+At AppsCot we use `debug-logger` in [sails-orientdb](https://github.com/appscot/sails-orientdb).
 
 ## Instalation
 ```javascript
