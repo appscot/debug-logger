@@ -6,6 +6,7 @@ var util = require('util'),
 
 exports = module.exports = debugLogger;
 exports.debug = vmDebug;
+var debugInstances = exports.debugInstances = {};
 
 exports.config = function config(options){
   options = options || {};
@@ -266,7 +267,6 @@ function disableColors(loggerLevel, disable){
   }
 }
 
-var debugInstances = {};
 function getDebugInstance(namespace, color, fd){
   if(!debugInstances[namespace]){
     debugInstances[namespace] = vmDebug(namespace);
