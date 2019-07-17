@@ -3,6 +3,7 @@
   "version": "0.4.1",
   "description": "A wrapper for visionmedia/debug logger, adding levels and colored output",
   "main": "debug-logger.js",
+  "types": "debug-logger.d.ts",
   "repository": {
     "type": "git",
     "url": "git@github.com:appscot/debug-logger.git"
@@ -25,5 +26,9 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.4",
+    "@types/node": "^12.6.6"
   }
 }
